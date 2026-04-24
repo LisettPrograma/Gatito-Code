@@ -3,7 +3,6 @@ import { MenuScene } from './scenes/MenuScene.js';
 import { GymScene } from './scenes/GymScene.js';
 import { MainScene } from './scenes/MainScene.js';
 import { EditorScene } from './scenes/EditorScene.js';
-import { CustomScene } from './scenes/CustomScene.js';
 
 export const TILE = 16;
 export const COLS = 16;
@@ -19,5 +18,5 @@ new Phaser.Game({
   roundPixels: true,
   backgroundColor: '#12161d',
   physics: { default: 'arcade', arcade: { debug: false, gravity: { x: 0, y: 0 } } },
-  scene: [BootScene, MenuScene, GymScene, MainScene, EditorScene, CustomScene],
+  scene: [BootScene, MenuScene, GymScene, MainScene, EditorScene],
 });
