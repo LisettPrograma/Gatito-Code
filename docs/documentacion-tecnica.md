@@ -126,16 +126,18 @@ Archivo: [`public/src/scenes/MenuScene.js`](/Users/iarabaya/Programacion/Gatito-
 Responsabilidades:
 
 - Ocultar paneles de juego y editor.
-- Dibujar el menu principal.
+- Dibujar y actualizar las distintas pantallas del menu.
 - Permitir navegar por teclado o mouse.
-- Lanzar escenas de juego o editor.
+- Redirigir a niveles, editor o creditos segun la opcion seleccionada.
 
-Entradas disponibles:
+Navegacion disponible:
 
-- `Gym`
-- `Main Level`
-- `Edit Gym`
-- `Edit Main`
+- Pantalla principal:
+  - `Levels`
+  - `Level Editor`
+  - `Credits`
+- Pantallas secundarias:
+  - `Back`
 
 ### 6.3. `TileLevelScene`
 
