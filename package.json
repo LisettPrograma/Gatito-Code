@@ -1,0 +1,19 @@
+{
+  "name": "proyecto-integrador-gatitocode",
+  "version": "1.0.0",
+  "description": "Juego desarrollado con Phaser",
+  "license": "MIT",
+  "author": "Grupo 6",
+  "type": "module",
+  "main": "index.html",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "browser-sync start --server public --files \"**/*\""
+  },
+  "devDependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}

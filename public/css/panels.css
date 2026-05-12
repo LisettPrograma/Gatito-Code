@@ -1,0 +1,335 @@
+/* ─── Panels & Editor base ─── */
+#panels, #editor-panel {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 220px;
+  user-select: none;
+}
+.panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--panel-radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#editor-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--panel-radius);
+  padding: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+.panel h3, #editor-panel h3 {
+  margin: 0 0 2px;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ─── Sprout Lands Panel (shared) ─── */
+.sprout-panel {
+  border: none;
+  border-radius: 6px;
+  width: 200px;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  background:
+    linear-gradient(170deg, #dfc99e 0%, #c8a87a 40%, #b89564 100%);
+  background-color: #c8a87a;
+  box-shadow:
+    0 4px 20px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.1);
+  transition: box-shadow var(--transition-slow);
+  position: relative;
+}
+.sprout-panel::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px solid rgba(90,58,26,.18);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.sprout-panel:hover {
+  box-shadow:
+    0 4px 28px rgba(0,0,0,.55),
+    0 0 12px rgba(255,238,136,.04),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.1);
+}
+.sprout-panel h3 {
+  font-family: 'SproutPixel', monospace;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--sprout-mid);
+  text-shadow: 0 1px 0 rgba(255,255,255,.3);
+  margin: 0;
+  display: block;
+  height: auto;
+  line-height: 1;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(90,58,26,.15);
+}
+.panel-header h3 {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.target-switch {
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(90,58,26,.35);
+  flex-shrink: 0;
+}
+.target-opt {
+  background: rgba(255,255,255,.12) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 3px 8px !important;
+  font-family: 'SproutPixel', monospace !important;
+  font-size: 10px !important;
+  color: rgba(90,58,26,.5) !important;
+  cursor: pointer;
+  transition: background .12s ease, color .12s ease;
+  line-height: 1.2;
+}
+.target-opt.active {
+  background: rgba(255,200,80,.35) !important;
+  color: var(--sprout-dark) !important;
+}
+.target-opt:hover:not(.active) {
+  background: rgba(255,255,255,.2) !important;
+}
+#queue-func1 h3 { color: #4b688a; text-shadow: none; border-bottom-color: rgba(75,104,138,.2); }
+#queue > h3 {
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(90,58,26,.15);
+}
+
+/* ─── Direction & Queue buttons ─── */
+.sprout-panel button {
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 4px 2px !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sprout-dark);
+  font: 600 12px ui-monospace, monospace;
+  cursor: pointer;
+  touch-action: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast), filter var(--transition-med);
+  justify-content: flex-start;
+}
+.sprout-panel button:hover:not(:disabled) {
+  opacity: .85;
+  filter: brightness(1.08);
+}
+.sprout-panel button:active:not(:disabled) {
+  transform: translateY(1px) scale(.97);
+}
+.sprout-panel button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  filter: grayscale(.4);
+}
+
+/* ─── Icons ─── */
+.dir-icon, .queue-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background-image: url('../assets/sproutlands-ui/Sprite sheets/buttons/Small Square Buttons.png');
+  background-size: 64px 256px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--sprout-dark); line-height: 1;
+  transition: filter var(--transition-fast);
+}
+.dir-icon { background-position: 0 -96px; }
+.sprout-panel button:active:not(:disabled) .dir-icon { background-position: -32px -96px; }
+
+/* ─── Slots (sprout panel) ─── */
+.sprout-panel .slot {
+  background: rgba(255,255,255,.2) !important;
+  border: 2px dashed rgba(90,58,26,.25) !important;
+  border-radius: 4px;
+  color: rgba(90,58,26,.45);
+  height: 34px !important;
+  margin-bottom: 4px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-sizing: border-box;
+  position: relative;
+  transition: background var(--transition-med), border-color var(--transition-med), box-shadow var(--transition-med);
+}
+.sprout-panel .slot.filled {
+  background: rgba(255,200,80,.3) !important;
+  border-style: solid;
+  border-color: rgba(90,58,26,.5);
+  color: var(--sprout-mid);
+}
+.sprout-panel .slot.filled:hover {
+  box-shadow: inset 0 0 8px rgba(255,200,80,.15);
+}
+
+/* ─── Action icons ─── */
+.run .queue-icon   { background-position: 0 -96px; color: #2a8a2a; font-size: 16px; font-weight: bold; }
+.clear .queue-icon { background-position: 0 -32px; color: #cc2222; font-size: 16px; font-weight: bold; }
+.run:active:not(:disabled) .queue-icon   { background-position: -32px -96px; }
+.clear:active:not(:disabled) .queue-icon { background-position: -32px -32px; }
+.run.running .queue-icon { opacity: .6; }
+#restart .queue-icon { background-position: 0 -64px; color: var(--sprout-mid); font-size: 16px; font-weight: bold; }
+#restart:active:not(:disabled) .queue-icon { background-position: -32px -64px; }
+
+.dir-label, .queue-label {
+  font-size: 14px;
+  color: var(--sprout-dark);
+  font-family: 'SproutPixel', monospace;
+  text-transform: uppercase;
+}
+
+/* ─── Generic panel / editor buttons ─── */
+.panel button, #editor-panel button {
+  background: var(--bg-surface);
+  color: var(--accent);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: 600 12px ui-monospace, monospace;
+  text-align: left;
+  cursor: pointer;
+  touch-action: none;
+  transition: background var(--transition-fast), transform .05s ease, opacity var(--transition-med), border-color var(--transition-med);
+}
+.panel button:hover:not(:disabled), #editor-panel button:hover:not(:disabled) {
+  background: #243049;
+  border-color: #3d506e;
+}
+.panel button:active:not(:disabled), #editor-panel button:active:not(:disabled) {
+  transform: translateY(1px) scale(.97);
+}
+.panel button:disabled, #editor-panel button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  filter: grayscale(.3);
+}
+
+/* ─── Slots container ─── */
+.slots { display: flex; flex-direction: column; gap: 4px; }
+.slots.f1-slots { margin-bottom: 8px; gap: 6px; }
+
+.slot {
+  height: 32px; width: 100%; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; box-sizing: border-box;
+  position: relative;
+  transition: background var(--transition-med), border-color var(--transition-med);
+}
+
+/* Base Sprout Panel Slot (Main Program) */
+.sprout-panel .slot {
+  background: rgba(255,255,255,.2);
+  border: 1px dashed rgba(90,58,26,.3);
+  color: rgba(90,58,26,.45);
+}
+
+/* ─── Function 1 panel ─── */
+#queue-func1 {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#queue-func1 h3 {
+  display: block;
+  margin: 0 0 10px 0;
+  height: auto;
+  color: #4b688a;
+  text-shadow: none;
+  font-size: 16px;
+  text-align: left;
+}
+.sprout-panel .slot.filled {
+  color: var(--sprout-mid);
+  border-style: solid;
+  border-color: rgba(90,58,26,.5);
+  background: rgba(255,200,80,.3) !important;
+}
+.sprout-panel .slot.drag-over {
+  background: rgba(255,200,80,.45) !important;
+  border-color: #a06020 !important;
+  border-style: solid !important;
+  box-shadow: inset 0 0 10px rgba(255,200,80,.15);
+}
+
+.var-label {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: rgba(90,58,26,0.5);
+  font-family: 'SproutPixel', monospace;
+  pointer-events: none;
+}
+.slot { position: relative; }
+.sprout-panel .slot.filled { cursor: grab; }
+.sprout-panel .slot.filled:active { cursor: grabbing; }
+.sprout-panel .slot.dragging { opacity: 0.5; outline: 2px dashed #4b8b3b; }
+
+
+.slot-trash-zone {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  background: #cc2222;
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.1s;
+  z-index: 9999;
+  border: 2px solid #ff6666;
+}
+.slot-trash-zone.visible {
+  opacity: 1;
+  pointer-events: all;
+  animation: popIn 0.2s ease-out;
+}
+.slot-trash-zone.drag-over {
+  transform: scale(1.15) rotate(-5deg);
+  background: #ff3333;
+}
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+

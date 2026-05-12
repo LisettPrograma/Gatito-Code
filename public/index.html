@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Gatito</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/panels.css">
+    <link rel="stylesheet" href="css/jump-picker.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/dialog.css">
+  </head>
+  <body>
+    <div id="hud"><div><b>Gatito</b> · <kbd>Esc</kbd> back to menu</div></div>
+
+    <div id="panels">
+      <div class="sprout-panel" id="dirs">
+        <div class="panel-header">
+          <h3>Movement</h3>
+          <div class="target-switch" id="target-switch" title="Switch target: Program or Funcion 1">
+            <button class="target-opt active" data-target="main">Program</button>
+            <button class="target-opt" data-target="func1">F1</button>
+          </div>
+        </div>
+        <button data-dir="up"><span class="dir-icon">▲</span><span class="dir-label">move up</span></button>
+        <button data-dir="down"><span class="dir-icon">▼</span><span class="dir-label">move down</span></button>
+        <button data-dir="left"><span class="dir-icon">◀</span><span class="dir-label">move left</span></button>
+        <button data-dir="right"><span class="dir-icon">▶</span><span class="dir-label">move right</span></button>
+        <button data-dir="func1"><span class="dir-icon" style="color:#1a4a7a; font-style: italic; font-weight: 900; font-family: serif; text-shadow: 0.5px 0 0 #1a4a7a, -0.5px 0 0 #1a4a7a;">ƒ</span><span class="dir-label" style="color:#1a4a7a">FUNCTION 1</span></button>
+        <button data-dir="jump" id="jump-btn"><span class="dir-icon" style="color:#1a4a7a">⏺</span><span class="dir-label">jump</span></button>
+        <div id="jump-dpad" class="jump-dpad">
+          <button data-jdir="up" class="jump-dir-btn" aria-label="Jump up"><span class="dir-icon">▲</span></button>
+          <button data-jdir="left" class="jump-dir-btn" aria-label="Jump left"><span class="dir-icon">◀</span></button>
+          <button data-jdir="none" class="jump-dir-btn" aria-label="Jump in place"><span class="dir-icon">⏺</span></button>
+          <button data-jdir="down" class="jump-dir-btn" aria-label="Jump down"><span class="dir-icon">▼</span></button>
+          <button data-jdir="right" class="jump-dir-btn" aria-label="Jump right"><span class="dir-icon">▶</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="right-panels">
+      <div class="sprout-panel" id="queue">
+        <h3>Program (max 5)</h3>
+        <div class="slots" id="slots">
+          <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+        </div>
+        <button id="run" class="run"><span class="queue-icon">✓</span><span class="queue-label">ejecutar</span></button>
+        <button id="clear" class="clear"><span class="queue-icon">✕</span><span class="queue-label">borrar</span></button>
+        <button id="restart"><span class="queue-icon">↺</span><span class="queue-label">reiniciar</span></button>
+      </div>
+
+      <div class="sprout-panel" id="queue-func1">
+        <h3>FUNCION 1</h3>
+        <div class="slots f1-slots" id="slots-func1" style="margin-bottom: 12px; gap: 8px;">
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+        </div>
+        <button id="clear-func1" class="clear" style="margin-top: 10px;"><span class="queue-icon">✕</span><span class="queue-label">BORRAR F1</span></button>
+      </div>
+    </div>
+
+    <div id="slot-trash-zone" class="slot-trash-zone">🗑️</div>
+    <div id="level-dialog">
+      <div id="level-dialog-box">
+        <div id="level-dialog-portrait"></div>
+        <div id="level-dialog-text"></div>
+        <button id="level-dialog-btn">
+          <span id="level-dialog-btn-icon">✓</span>
+          <span>continuar</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="editor-panel">
+      <div>
+        <h3 id="ed-title">Editor</h3>
+        <div class="ed-status" id="ed-status">—</div>
+      </div>
+      <div>
+        <h3>Layer</h3>
+        <div class="ed-layers" id="ed-layers">
+          <button data-layer="floor">[1] Floor</button>
+          <button data-layer="walls" class="active">[2] Walls</button>
+        </div>
+      </div>
+      <div>
+        <h3>Terrain brush</h3>
+        <div class="ed-terrains" id="ed-terrains"></div>
+      </div>
+      <div>
+        <h3>Tileset (manual)</h3>
+        <div class="ed-tabs" id="ed-tabs"></div>
+      </div>
+      <div class="ed-palette" id="ed-palette"></div>
+      <div>
+        <h3>Spawn</h3>
+        <button id="ed-spawn">📍 Set spawn tile  (S)</button>
+      </div>
+      <div>
+        <h3>Objects</h3>
+        <div class="ed-obj-type" id="ed-obj-type">
+          <button data-objtype="pickup" class="active">Pickup</button>
+          <button data-objtype="deco">Deco</button>
+        </div>
+        <div class="ed-tabs" id="ed-obj-tabs"></div>
+        <div class="ed-palette" id="ed-obj-palette"></div>
+      </div>
+      <div class="ed-actions">
+        <button class="save" id="ed-save">💾 Save  (Ctrl+S)</button>
+        <button id="ed-play">▶ Play  (P)</button>
+        <button id="ed-undo">↶ Undo</button>
+        <button id="ed-redo">↷ Redo</button>
+        <button id="ed-clear">Clear layer</button>
+        <button id="ed-revert">Revert to disk</button>
+        <button class="menu" id="ed-menu">← Menu  (Esc)</button>
+      </div>
+      <div class="ed-status">
+        Left-click paint · right-click erase · <kbd>E</kbd> eyedrop · <kbd>G</kbd> grid
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <script type="module" src="./src/ui/index.js"></script>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

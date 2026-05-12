@@ -1,0 +1,76 @@
+:root {
+  --bg-deep: #090c10;
+  --bg-base: #0e1116;
+  --bg-raised: #141922;
+  --bg-surface: #1b2230;
+  --border-dim: #23304a;
+  --border-bright: #2e3a55;
+  --accent: #8ef;
+  --accent-warm: #ffee88;
+  --accent-blue: #5a9aff;
+  --text-primary: #eee;
+  --text-dim: #8895a7;
+  --sprout-dark: #3d2008;
+  --sprout-mid: #5a3a1a;
+  --sprout-light: #d1ba9e;
+  --sprout-border: #8c643c;
+  --panel-radius: 10px;
+  --transition-fast: .08s ease;
+  --transition-med: .18s ease;
+  --transition-slow: .3s ease;
+}
+
+@font-face {
+  font-family: 'SproutPixel';
+  src: url('../assets/sproutlands-ui/fonts/pixelFont-7-8x14-sproutLands.ttf') format('truetype');
+  font-display: block;
+}
+
+html, body {
+  margin: 0; padding: 0;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: ui-monospace, monospace;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(20, 30, 52, .6) 0%, transparent 70%),
+    repeating-conic-gradient(rgba(255,255,255,.008) 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+    var(--bg-deep);
+}
+
+canvas {
+  image-rendering: pixelated;
+  display: block;
+  order: 2;
+  border-radius: 4px;
+  box-shadow:
+    0 0 0 1px var(--border-dim),
+    0 4px 24px rgba(0,0,0,.5),
+    0 0 80px -20px rgba(90,160,255,.08);
+}
+
+#panels      { order: 1; }
+#right-panels{ order: 3; display: none; flex-direction: column; gap: 12px; }
+#editor-panel{ order: 4; }
+
+#hud {
+  position: fixed;
+  top: 8px; left: 8px;
+  font-size: 12px;
+  background: rgba(9,12,16,.8);
+  backdrop-filter: blur(6px);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-dim);
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+#hud b { color: var(--accent-warm); }

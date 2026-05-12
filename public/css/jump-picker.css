@@ -1,0 +1,29 @@
+.jump-dpad {
+  display: none;
+  flex-direction: row;
+  gap: 2px;
+  animation: dpadIn .1s ease-out;
+}
+.jump-dpad.visible {
+  display: flex;
+}
+@keyframes dpadIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.jump-dir-btn {
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 3px 0 !important;
+  display: flex !important;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  touch-action: none;
+  transition: opacity .08s ease, transform .05s ease;
+  justify-content: flex-start;
+}
+.jump-dir-btn:hover { opacity: .85; }
+.jump-dir-btn:active { transform: translateY(1px) scale(.97); }
