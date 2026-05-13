@@ -1,7 +1,11 @@
 import { TileLevelScene } from './TileLevelScene.js';
 
 export class MainScene extends TileLevelScene {
-  constructor() { super('Main'); this.levelKey = 'main'; }
+  constructor() {
+    super('Main');
+    this.levelKey = 'main';
+    this.missionText = 'Misión: Recolecta todos los plantines usando comandos de movimiento.';
+  }
 
   decorate() {
     this.addPickup(2,  1,  5);

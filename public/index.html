@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/jump-picker.css">
     <link rel="stylesheet" href="css/editor.css">
     <link rel="stylesheet" href="css/dialog.css">
+    <link rel="stylesheet" href="css/name-dialog.css">
   </head>
   <body>
     <div id="hud"><div><b>Gatito</b> · <kbd>Esc</kbd> back to menu</div></div>
@@ -34,6 +35,10 @@
           <button data-jdir="down" class="jump-dir-btn" aria-label="Jump down"><span class="dir-icon">▼</span></button>
           <button data-jdir="right" class="jump-dir-btn" aria-label="Jump right"><span class="dir-icon">▶</span></button>
         </div>
+      </div>
+      <div id="mission">
+        <h3>Misión</h3>
+        <p id="mission-text"></p>
       </div>
     </div>
 
@@ -68,6 +73,17 @@
           <span id="level-dialog-btn-icon">✓</span>
           <span>continuar</span>
         </button>
+      </div>
+    </div>
+
+    <div id="name-dialog">
+      <div id="name-dialog-box">
+        <h3>Nuevo nivel</h3>
+        <input id="name-dialog-input" type="text" maxlength="30" placeholder="Nombre del nivel…" autocomplete="off" />
+        <div id="name-dialog-actions">
+          <button id="name-dialog-cancel">Cancelar</button>
+          <button id="name-dialog-confirm" class="confirm">Crear</button>
+        </div>
       </div>
     </div>
 

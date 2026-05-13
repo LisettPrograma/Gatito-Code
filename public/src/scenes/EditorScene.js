@@ -12,6 +12,7 @@ export class EditorScene extends Phaser.Scene {
 
   init(data) {
     this.levelKey = data?.levelKey || 'gym';
+    this.returnScreen = data?.returnScreen || 'main';
   }
 
   create() {
@@ -71,7 +72,7 @@ export class EditorScene extends Phaser.Scene {
       onLayer:        (layer)   => this.setLayer(layer),
       onSave:         () => this.save(),
       onPlay:         () => this.playTest(),
-      onMenu:         () => this.scene.start('Menu'),
+      onMenu:         () => this.scene.start('Menu', { screen: this.returnScreen }),
       onClear:        () => this.clearActiveLayer(),
       onUndo:         () => this.undo(),
       onRedo:         () => this.redo(),
@@ -366,7 +367,10 @@ export class EditorScene extends Phaser.Scene {
   playTest() {
     // localStorage already holds the live edits; game scene will pick them up.
     writeLevelJson(this.levelKey, this.serialize());
-    this.scene.start(this.levelKey === 'gym' ? 'Gym' : 'Main');
+    const targetScene = this.levelKey === 'gym' ? 'Gym' 
+                      : this.levelKey === 'main' ? 'Main'
+                      : 'Custom';
+    this.scene.start(targetScene, { levelKey: this.levelKey, returnScreen: this.returnScreen });
   }
 
   // --- Mode switching ----------------------------------------------------

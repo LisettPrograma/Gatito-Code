@@ -16,6 +16,11 @@ export const DIRS = {
  * and collision data come from the level JSON via `loadLevel`.
  */
 export class TileLevelScene extends Phaser.Scene {
+  init(data) {
+    if (data?.levelKey) this.levelKey = data.levelKey;
+    this.returnScreen = data?.returnScreen || 'main';
+  }
+
   create() {
     const level = loadLevel(this, this.levelKey);
     this.cols = level.cols;
@@ -43,8 +48,15 @@ export class TileLevelScene extends Phaser.Scene {
       bus.onRestart = () => this.resetPlayer();
     }
     window.__setPanels?.(true);
+    if (this.missionText) {
+      window.__setMission?.(this.missionText);
+    } else {
+      window.__setMission?.(null);
+    }
+
     this.events.once('shutdown', () => {
       window.__setPanels?.(false);
+      window.__setMission?.(null);
       if (window.__GYM) { window.__GYM.onRun = null; window.__GYM.onRestart = null; }
     });
 
@@ -57,7 +69,7 @@ export class TileLevelScene extends Phaser.Scene {
       F: Phaser.Input.Keyboard.KeyCodes.F,
       ESC: Phaser.Input.Keyboard.KeyCodes.ESC,
     });
-    this.keys.ESC.on('down', () => this.scene.start('Menu'));
+    this.keys.ESC.on('down', () => this.scene.start('Menu', { screen: this.returnScreen }));
 
     this.grid = this.add.graphics().setDepth(100);
     this.drawGrid();

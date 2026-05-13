@@ -333,3 +333,31 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+/* ─── Mission Box ─── */
+#mission {
+  background: #0d2544;
+  border: 1px solid #2357a0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  width: 200px;
+  box-sizing: border-box;
+}
+#mission h3 {
+  margin: 0;
+  font-size: 11px;
+  color: #88ccff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: ui-monospace, monospace;
+}
+#mission p {
+  margin: 0;
+  font-family: 'SproutPixel', monospace;
+  font-size: 12px;
+  color: #c0e0ff;
+  line-height: 1.6;
+}
+

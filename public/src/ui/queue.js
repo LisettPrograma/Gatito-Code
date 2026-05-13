@@ -105,6 +105,10 @@ export function initQueue() {
   window.__setPanels = (visible) => {
     document.getElementById('panels').style.display = visible ? 'flex' : 'none';
     document.getElementById('right-panels').style.display = visible ? 'flex' : 'none';
+    if (!visible) {
+      const missionBox = document.getElementById('mission');
+      if (missionBox) missionBox.style.display = 'none';
+    }
   };
 
   renderAllSlots();
