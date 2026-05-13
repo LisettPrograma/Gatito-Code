@@ -73,6 +73,7 @@ export class EditorScene extends Phaser.Scene {
       onSave:         () => this.save(),
       onPlay:         () => this.playTest(),
       onMenu:         () => this.scene.start('Menu', { screen: this.returnScreen }),
+      onMenu:         () => this.scene.start('Menu', { screen: this.returnScreen }),
       onClear:        () => this.clearActiveLayer(),
       onUndo:         () => this.undo(),
       onRedo:         () => this.redo(),
@@ -144,7 +145,7 @@ export class EditorScene extends Phaser.Scene {
     this.keys.G.on('down',   () => { this.gridVisible = !this.gridVisible; this.grid.setVisible(this.gridVisible); });
     this.keys.E.on('down',   () => this.eyedrop());
     this.keys.P.on('down',   () => this.playTest());
-    this.keys.ESC.on('down', () => this.scene.start('Menu'));
+    this.keys.ESC.on('down', () => this.scene.start('Menu', { screen: this.returnScreen }));
     this.keys.S.on('down',   (ev) => { if (!ev.ctrlKey) this.setMode(this.edMode === 'spawn' ? 'tile' : 'spawn'); });
     this.keys.O.on('down',   () => this.setMode(this.edMode === 'object' ? 'tile' : 'object'));
     this.input.keyboard.on('keydown', (ev) => {
@@ -365,7 +366,6 @@ export class EditorScene extends Phaser.Scene {
   }
 
   playTest() {
-    // localStorage already holds the live edits; game scene will pick them up.
     writeLevelJson(this.levelKey, this.serialize());
     const targetScene = this.levelKey === 'gym' ? 'Gym' 
                       : this.levelKey === 'main' ? 'Main'
