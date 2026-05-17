@@ -1,6 +1,5 @@
 import { TILE, COLS, ROWS } from '../main.js';
 import { getCustomLevels, addCustomLevel, createNewLevel } from '../level/TileLevel.js';
-import { getCustomLevels, addCustomLevel, createNewLevel } from '../level/TileLevel.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
@@ -28,24 +27,6 @@ export class MenuScene extends Phaser.Scene {
       fontFamily: 'monospace', fontSize: '6px', color: '#556',
     }).setOrigin(0.5);
 
-    this.dynamicGroup = this.add.group();
-    this.buttons = [];
-    this.selected = 0;
-
-    this.input.keyboard.on('keydown-UP',       () => this.select(-1));
-    this.input.keyboard.on('keydown-DOWN',     () => this.select(1));
-    this.input.keyboard.on('keydown-ENTER',    () => this.buttons[this.selected]?.action());
-    this.input.keyboard.on('keydown-SPACE',    () => this.buttons[this.selected]?.action());
-    this.input.keyboard.on('keydown-ESC',      () => this.showScreen('main'));
-    this.input.keyboard.on('keydown-BACKSPACE',() => this.showScreen('main'));
-
-    const initScreen = this.scene.settings.data?.screen ?? 'main';
-    this.showScreen(initScreen);
-  }
-
-  showScreen(screen) {
-    this.dynamicGroup.clear(true, true);
-    this.buttons = [];
     this.dynamicGroup = this.add.group();
     this.buttons = [];
     this.selected = 0;
@@ -146,15 +127,11 @@ export class MenuScene extends Phaser.Scene {
     const bg = this.add.rectangle(x, y, 120, 16, fillBase).setStrokeStyle(1, strokeBase);
     const tx = this.add.text(x, y, label, {
       fontFamily: 'monospace', fontSize: '9px', color: textColor,
-      fontFamily: 'monospace', fontSize: '9px', color: textColor,
     }).setOrigin(0.5);
     bg.setInteractive({ useHandCursor: true });
     const idx = this.buttons.length;
     bg.on('pointerover', () => { this.selected = idx; this.refresh(); });
     bg.on('pointerdown', () => action());
-    this.buttons.push({ bg, tx, action, type, textColor });
-    this.dynamicGroup.add(bg);
-    this.dynamicGroup.add(tx);
     this.buttons.push({ bg, tx, action, type, textColor });
     this.dynamicGroup.add(bg);
     this.dynamicGroup.add(tx);
@@ -170,9 +147,6 @@ export class MenuScene extends Phaser.Scene {
       const on = i === this.selected;
       b.bg.setFillStyle(on ? 0x3b5488 : (b.type === 'accent' ? 0x1a3318 : 0x1b2230));
       b.tx.setColor(on ? '#ffffff' : b.textColor);
-      b.bg.setFillStyle(on ? 0x3b5488 : (b.type === 'accent' ? 0x1a3318 : 0x1b2230));
-      b.tx.setColor(on ? '#ffffff' : b.textColor);
     });
   }
 }
-
