@@ -30,6 +30,15 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
+    // Generar textura de píxel blanco 2×2 para partículas climáticas.
+    const canvas = document.createElement('canvas');
+    canvas.width = 2;
+    canvas.height = 2;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 2, 2);
+    this.textures.addCanvas('pixel', canvas);
+
     const walk = (key, frames) => this.anims.create({
       key,
       frames: this.anims.generateFrameNumbers('character_base', { frames }),

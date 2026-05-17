@@ -1,5 +1,6 @@
 import { TILE } from '../main.js';
 import { loadLevel } from '../level/TileLevel.js';
+import { createWeather, destroyWeather } from '../level/WeatherSystem.js';
 import { Player } from '../character/Player.js';
 import { executeProgram, DIRS } from '../program/ProgramExecutor.js';
 
@@ -33,6 +34,10 @@ export class TileLevelScene extends Phaser.Scene {
     this.loadObjects(level.objects);
     this.decorate();
 
+    if (level.weather && Object.values(level.weather).some(v => v > 0)) {
+      createWeather(this, level.weather);
+    }
+
     this.player = this.add.sprite(...this.tileCenter(this.playerModel.tx, this.playerModel.ty), 'character_base', 0).setDepth(40);
     this.player.anims.play(`idle_${this.playerModel.facing}`);
 
@@ -49,6 +54,7 @@ export class TileLevelScene extends Phaser.Scene {
     }
 
     this.events.once('shutdown', () => {
+      destroyWeather(this);
       window.__setPanels?.(false);
       window.__setMission?.(null);
       window.__setMission?.(null);
