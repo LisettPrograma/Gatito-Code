@@ -92,6 +92,7 @@
         <h3 id="ed-title">Editor</h3>
         <div class="ed-status" id="ed-status">—</div>
       </div>
+      <hr class="ed-section-hr">
       <div>
         <h3>Layer</h3>
         <div class="ed-layers" id="ed-layers">
@@ -99,28 +100,100 @@
           <button data-layer="walls" class="active">[2] Walls</button>
         </div>
       </div>
+      <hr class="ed-section-hr">
       <div>
         <h3>Terrain brush</h3>
         <div class="ed-terrains" id="ed-terrains"></div>
       </div>
+      <hr class="ed-section-hr">
       <div>
-        <h3>Tileset (manual)</h3>
+        <div class="ed-tileset-header">
+          <h3>Tilesets</h3>
+        </div>
+        <div class="ed-tileset-categories" id="ed-tileset-categories"></div>
         <div class="ed-tabs" id="ed-tabs"></div>
+        <div class="ed-palette" id="ed-palette"></div>
       </div>
-      <div class="ed-palette" id="ed-palette"></div>
+      <hr class="ed-section-hr">
       <div>
         <h3>Spawn</h3>
         <button id="ed-spawn">📍 Set spawn tile  (S)</button>
       </div>
+      <hr class="ed-section-hr">
       <div>
-        <h3>Objects</h3>
-        <div class="ed-obj-type" id="ed-obj-type">
-          <button data-objtype="pickup" class="active">Pickup</button>
-          <button data-objtype="deco">Deco</button>
+        <div class="ed-obj-header">
+          <h3>Objects</h3>
+          <div class="ed-obj-type" id="ed-obj-type">
+            <button data-objtype="pickup" class="active">Pickup</button>
+            <button data-objtype="deco">Deco</button>
+          </div>
         </div>
+        <div class="ed-obj-categories" id="ed-obj-categories"></div>
         <div class="ed-tabs" id="ed-obj-tabs"></div>
+        <div class="ed-variant-switches" id="ed-variant-switches"></div>
         <div class="ed-palette" id="ed-obj-palette"></div>
       </div>
+      <hr class="ed-section-hr">
+      <div>
+        <h3>Weather</h3>
+        <div class="ed-weather-list" id="ed-weather-list">
+          <div class="ed-weather-item" data-weather="rain">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Rain</span>
+          </div>
+          <div class="ed-weather-item" data-weather="snow">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Snow</span>
+          </div>
+          <div class="ed-weather-item" data-weather="pollen">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Pollen</span>
+          </div>
+          <div class="ed-weather-item" data-weather="leaves">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Leaves</span>
+          </div>
+          <div class="ed-weather-item" data-weather="night">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Night</span>
+          </div>
+          <div class="ed-weather-item" data-weather="fog">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Fog</span>
+          </div>
+          <div class="ed-weather-item" data-weather="dust">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Dust</span>
+          </div>
+          <div class="ed-weather-item" data-weather="wind">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Wind</span>
+          </div>
+          <div class="ed-weather-item" data-weather="storm">
+            <button class="ed-weather-up">▲</button>
+            <span class="ed-weather-val">0.0</span>
+            <button class="ed-weather-down">▼</button>
+            <span class="ed-weather-name">Storm</span>
+          </div>
+        </div>
+      </div>
+
       <div class="ed-actions">
         <button class="save" id="ed-save">💾 Save  (Ctrl+S)</button>
         <button id="ed-play">▶ Play  (P)</button>

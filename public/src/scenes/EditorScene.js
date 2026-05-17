@@ -1,8 +1,9 @@
 import { TILE, COLS, ROWS } from '../main.js';
 import {
-  TILESETS, TERRAINS, OBJECTS, readLevelJson, writeLevelJson, clearLevelOverride,
+  TILESETS, TILESET_CATEGORIES, TERRAINS, OBJECTS, OBJECT_CATEGORIES, VARIANT_DEFS, readLevelJson, writeLevelJson, clearLevelOverride,
   expandLayer, flatToRows, loadLevel, isSameTerrain, resolveTerrainGid,
 } from '../level/TileLevel.js';
+import { createWeather, destroyWeather } from '../level/WeatherSystem.js';
 
 const LAYERS = ['floor', 'walls'];
 const UNDO_CAP = 50;
@@ -26,6 +27,10 @@ export class EditorScene extends Phaser.Scene {
     this.rows = level.rows;
     this.spawn = level.spawn;
     this.raw = level.raw;
+    this.weather = level.weather ?? { rain: 0, snow: 0, pollen: 0, leaves: 0, night: 0 };
+    if (Object.values(this.weather).some(v => v > 0)) {
+      createWeather(this, this.weather);
+    }
 
     this.activeLayer = 'walls';
     this.selectedGid = 105;
@@ -65,10 +70,13 @@ export class EditorScene extends Phaser.Scene {
     window.__setEditor?.({
       levelKey: this.levelKey,
       tilesets: TILESETS,
+      tilesetCategories: TILESET_CATEGORIES,
       terrains: TERRAINS,
       objects:  OBJECTS,
-      onSelect:       (gid)     => { this.activeTerrain = null; this.selectedGid = gid; this.updateHud(); },
-      onTerrain:      (terrain) => { this.activeTerrain = terrain; this.updateHud(); window.__setEditor_updateTerrain?.(terrain?.name ?? null); },
+      variantDefs: VARIANT_DEFS,
+      categories: OBJECT_CATEGORIES,
+      onSelect:       (gid)     => { this.activeTerrain = null; this.selectedGid = gid; this.setMode('tile'); this.updateHud(); },
+      onTerrain:      (terrain) => { this.activeTerrain = terrain; this.setMode('tile'); this.updateHud(); window.__setEditor_updateTerrain?.(terrain?.name ?? null); },
       onLayer:        (layer)   => this.setLayer(layer),
       onSave:         () => this.save(),
       onPlay:         () => this.playTest(),
@@ -82,6 +90,8 @@ export class EditorScene extends Phaser.Scene {
       onObjectSelect: (key, frame, type) => { this.selectedObject = { key, frame, type }; this.setMode('object'); },
       onSpawnMode:    () => this.setMode('spawn'),
       getMode:        () => this.edMode,
+      getWeather:     () => this.weather,
+      onWeatherChange:(cfg) => this.setWeather(cfg),
     });
 
     // Pointer input ---------------------------------------------------------
@@ -157,6 +167,7 @@ export class EditorScene extends Phaser.Scene {
 
     // Lifecycle -------------------------------------------------------------
     this.events.once('shutdown', () => {
+      destroyWeather(this);
       window.__setEditor?.(null);
       this.painting = null;
     });
@@ -201,9 +212,8 @@ export class EditorScene extends Phaser.Scene {
 
   _terrainPaint(tx, ty) {
     const terrain = this.activeTerrain;
-    const flat = this.flat[this.activeLayer];
-    // Mark this cell as terrain (use center as placeholder to trigger neighbor refresh).
-    flat[ty * this.cols + tx] = terrain.tiles[15];
+    // Paint the center tile first so the visual layer updates, then refresh neighbours.
+    this._setGid(tx, ty, terrain.tiles[15]);
     this._refreshTerrainBlock(tx, ty, terrain);
   }
 
@@ -349,6 +359,7 @@ export class EditorScene extends Phaser.Scene {
       },
       spawn: this.spawn,
       objects: this.objects.slice(),
+      weather: this.weather,
     };
   }
 
@@ -379,6 +390,14 @@ export class EditorScene extends Phaser.Scene {
     this.edMode = mode;
     window.__setEditor_updateMode?.(mode);
     this.updateHud();
+  }
+
+  setWeather(cfg) {
+    this.weather = { ...cfg };
+    destroyWeather(this);
+    if (Object.values(this.weather).some(v => v > 0)) {
+      createWeather(this, this.weather);
+    }
   }
 
   // --- Object placement --------------------------------------------------
