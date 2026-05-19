@@ -4,10 +4,9 @@ import { GymScene } from './scenes/GymScene.js';
 import { MainScene } from './scenes/MainScene.js';
 import { EditorScene } from './scenes/EditorScene.js';
 import { CustomScene } from './scenes/CustomScene.js';
+import { TILE, COLS, ROWS } from './config/game.js';
 
-export const TILE = 16;
-export const COLS = 16;
-export const ROWS = 12;
+export { TILE, COLS, ROWS };
 
 new Phaser.Game({
   type: Phaser.AUTO,
