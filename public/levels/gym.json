@@ -409,7 +409,11 @@
     "snow": 0,
     "pollen": 0,
     "leaves": 0,
-    "night": 0
+    "night": 0,
+    "fog": 0,
+    "dust": 0,
+    "wind": 0,
+    "storm": 0
   },
   "objects": [
     {
