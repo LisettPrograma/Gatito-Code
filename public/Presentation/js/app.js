@@ -1,0 +1,118 @@
+import { SLIDES } from './slides.js';
+import { transitionTo } from './transitions.js';
+import { initSounds, stopAllSounds } from './sound.js';
+import { clearAllTimers } from './timers.js';
+
+let currentSlideIndex = 0;
+const slideElements = [];
+let isTransitioning = false;
+let soundsInitialized = false;
+
+function init() {
+  const container = document.getElementById('presentation-container');
+  
+  // Render all slides into DOM
+  SLIDES.forEach((slideDef) => {
+    const el = document.createElement('div');
+    el.className = 'slide';
+    el.id = slideDef.id;
+    el.innerHTML = slideDef.html;
+    container.appendChild(el);
+    slideElements.push(el);
+  });
+
+  updateCounter();
+  
+  // Event listeners
+  document.getElementById('btn-prev').addEventListener('click', () => {
+    initAudioContext();
+    prevSlide();
+  });
+  
+  document.getElementById('btn-next').addEventListener('click', () => {
+    initAudioContext();
+    nextSlide();
+  });
+
+  window.addEventListener('keydown', (e) => {
+    initAudioContext();
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      nextSlide();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prevSlide();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      goToSlide(0);
+    }
+  });
+
+  // Start at slide 0
+  goToSlide(0, true);
+}
+
+function initAudioContext() {
+  if (!soundsInitialized) {
+    initSounds();
+    soundsInitialized = true;
+  }
+}
+
+async function nextSlide() {
+  if (isTransitioning || currentSlideIndex >= SLIDES.length - 1) return;
+  await goToSlide(currentSlideIndex + 1);
+}
+
+async function prevSlide() {
+  if (isTransitioning || currentSlideIndex <= 0) return;
+  await goToSlide(currentSlideIndex - 1);
+}
+
+async function goToSlide(index, immediate = false) {
+  if (index < 0 || index >= SLIDES.length) return;
+  if (isTransitioning) return;
+  
+  // CRITICAL: Stop all sounds and timers from previous slide before anything else
+  stopAllSounds();
+  clearAllTimers();
+  
+  const oldIndex = currentSlideIndex;
+  const oldDef = SLIDES[oldIndex];
+  const oldEl = slideElements[oldIndex];
+  
+  currentSlideIndex = index;
+  const newDef = SLIDES[currentSlideIndex];
+  const newEl = slideElements[currentSlideIndex];
+  
+  const direction = currentSlideIndex > oldIndex ? 1 : -1;
+  
+  isTransitioning = true;
+  updateCounter();
+
+  if (oldDef && oldDef.onLeave && !immediate) {
+    oldDef.onLeave();
+  }
+
+  if (immediate) {
+    if (oldEl) oldEl.classList.remove('active');
+    newEl.classList.add('active');
+  } else {
+    await transitionTo(oldEl, newEl, direction);
+  }
+
+  if (newDef && newDef.onEnter) {
+    newDef.onEnter();
+  }
+  
+  isTransitioning = false;
+}
+
+function updateCounter() {
+  const counter = document.getElementById('slide-counter');
+  if (counter) {
+    counter.innerText = `${currentSlideIndex + 1} / ${SLIDES.length}`;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', init);
