@@ -45,7 +45,7 @@ export const TILESETS = [
 
   // ── Water ──
   { key: 'ts_water',              category: 'water', label: 'Classic',            name: 'water',              url: `${BASE}/Water.png`,                                                                              cols: 4,  rows: 1,  firstgid: 400   },
-  // ts_water es el único tileset de agua necesario (contiene los 4 frames de animación).
+  // ts_water es el único tileset de agua necesario (contiene los 4 frames de animacion).
   // Los tilesets individuales (water_ground, water_1-4) eran redundantes.
 
   // ── Fences ──

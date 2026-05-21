@@ -1,12 +1,13 @@
 import { SLIDES } from './slides.js';
 import { transitionTo } from './transitions.js';
 import { initSounds, stopAllSounds } from './sound.js';
-import { clearAllTimers } from './timers.js';
+import { clearAllTimers, setSessionId } from './timers.js';
 
 let currentSlideIndex = 0;
 const slideElements = [];
 let isTransitioning = false;
 let soundsInitialized = false;
+let slideSessionId = 0;
 
 function init() {
   const container = document.getElementById('presentation-container');
@@ -73,7 +74,11 @@ async function goToSlide(index, immediate = false) {
   if (index < 0 || index >= SLIDES.length) return;
   if (isTransitioning) return;
   
-  // CRITICAL: Stop all sounds and timers from previous slide before anything else
+  // Generate new session ID to invalidate old callbacks
+  slideSessionId++;
+  setSessionId(slideSessionId);
+  
+  // Stop all sounds and timers from previous slide
   stopAllSounds();
   clearAllTimers();
   
@@ -102,7 +107,7 @@ async function goToSlide(index, immediate = false) {
   }
 
   if (newDef && newDef.onEnter) {
-    newDef.onEnter();
+    newDef.onEnter(slideSessionId);
   }
   
   isTransitioning = false;

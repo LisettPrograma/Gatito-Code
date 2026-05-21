@@ -3,7 +3,7 @@ import { Player } from '../public/src/domain/Player.js';
 import { Level } from '../public/src/domain/Level.js';
 
 // ============================================================
-//  Helper: construye una matriz de sólidos 5×5 con una pared
+//  Helper: construye una matriz de solidos 5×5 con una pared
 //  en el centro (2,2) y el resto libre.
 // ============================================================
 function makeSolid5x5(wallX = 2, wallY = 2) {
@@ -16,9 +16,9 @@ function makeSolid5x5(wallX = 2, wallY = 2) {
 //  SUITE 1: domain/Player.js
 //  Navegación y colisiones del jugador
 // ============================================================
-describe('domain/Player.js — Navegación y colisiones del jugador', () => {
+describe('domain/Player.js — Navegacion y colisiones del jugador', () => {
 
-  it('El jugador puede moverse libremente por casillas vacías en las 4 direcciones cardinales', () => {
+  it('El jugador puede moverse libremente por casillas vacias en las 4 direcciones cardinales', () => {
     // Iniciamos en (3,3); la pared está en (2,2), así que tenemos espacio libre alrededor
     const player = new Player(5, 5, makeSolid5x5(), 3, 3);
 
@@ -54,7 +54,7 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
     expect(r.ty).toBe(2);
   });
 
-  it('El jugador NO puede atravesar casillas sólidas (paredes)', () => {
+  it('El jugador NO puede atravesar casillas solidas (paredes)', () => {
     // Jugador en (1,2), pared en (2,2)
     const player = new Player(5, 5, makeSolid5x5(2, 2), 1, 2);
     const before = { tx: player.tx, ty: player.ty };
@@ -65,7 +65,7 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
     expect(r.ty).toBe(before.ty);
   });
 
-  it('El jugador NO puede salirse de los límites del mapa', () => {
+  it('El jugador NO puede salirse de los limites del mapa', () => {
     // Esquina superior izquierda (0,0)
     const player = new Player(5, 5, makeSolid5x5(), 0, 0);
 
@@ -79,7 +79,7 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
     expect(player.tryMove('right').success).toBe(false);
   });
 
-  it('El jugador puede saltar 2 casillas, atravesando 1 casilla sólida intermedia', () => {
+  it('El jugador puede saltar 2 casillas, atravesando 1 casilla solida intermedia', () => {
     // Jugador en (0,2), pared en (1,2), destino libre en (2,2)
     const solid = Array.from({ length: 5 }, (_, y) =>
       Array.from({ length: 5 }, (_, x) => x === 1 && y === 2)
@@ -92,7 +92,7 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
     expect(r.toTy).toBe(2);
   });
 
-  it('El jugador NO puede saltar si la casilla de aterrizaje está fuera del mapa', () => {
+  it('El jugador NO puede saltar si la casilla de aterrizaje esta fuera del mapa', () => {
     // Jugador en (4,2), salto a la derecha iría a (6,2) → fuera del mapa 5×5
     const player = new Player(5, 5, makeSolid5x5(), 4, 2);
     const before = { tx: player.tx, ty: player.ty };
@@ -103,7 +103,7 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
     expect(player.ty).toBe(before.ty);
   });
 
-  it('El jugador vuelve exactamente a su posición de spawn al reiniciar', () => {
+  it('El jugador vuelve exactamente a su posicion de spawn al reiniciar', () => {
     const player = new Player(5, 5, makeSolid5x5(), 0, 0);
 
     // Moverlo varias veces por casillas libres (evitando la pared en 2,2)
@@ -122,9 +122,9 @@ describe('domain/Player.js — Navegación y colisiones del jugador', () => {
 
 // ============================================================
 //  SUITE 2: domain/Level.js
-//  Geometría de la grilla del mapa
+//  Geometria de la grilla del mapa
 // ============================================================
-describe('domain/Level.js — Geometría de la grilla del mapa', () => {
+describe('domain/Level.js — Geometria de la grilla del mapa', () => {
 
   // Mapa 16×12 con paredes en los bordes (muro perimetral)
   function makeBorderedMap(cols = 16, rows = 12) {
@@ -164,7 +164,7 @@ describe('domain/Level.js — Geometría de la grilla del mapa', () => {
     expect(level.isSolid(15, 7)).toBe(true);
   });
 
-  it('isSolid() devuelve true para coordenadas fuera de los límites del mapa', () => {
+  it('isSolid() devuelve true para coordenadas fuera de los limites del mapa', () => {
     const level = makeBorderedMap();
 
     expect(level.isSolid(-1, 5)).toBe(true);
@@ -182,7 +182,7 @@ describe('domain/Level.js — Geometría de la grilla del mapa', () => {
     expect(level.isSolid(10, 10)).toBe(false);
   });
 
-  it('El nivel registra correctamente los objetos de recolección con su posición y tipo', () => {
+  it('El nivel registra correctamente los objetos de recoleccion con su posicion y tipo', () => {
     const objects = [
       { tx: 2, ty: 2, key: 'plants', frame: 5, type: 'pickup' },
       { tx: 5, ty: 3, key: 'grass_props', frame: 0, type: 'deco' },
