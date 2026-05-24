@@ -6,6 +6,7 @@ import { executeProgram } from '../../engine/program/ProgramExecutor.js';
 import { PlayerView } from '../../engine/entities/PlayerView.js';
 import { PickupView } from '../../engine/entities/PickupView.js';
 import { WorldObjectView } from '../../engine/entities/WorldObjectView.js';
+import { getAllLevels, markLevelCompleted } from '../../services/Storage.js';
 
 /**
  * Gameplay scene driven by the program-queue d-pad.
@@ -47,7 +48,7 @@ export class TileLevelScene extends Phaser.Scene {
     const bus = window.__GYM;
     if (bus) {
       bus.onRun = (moves) => this.runProgram(moves);
-      bus.onRestart = () => this.resetPlayer();
+      bus.onRestart = () => this.resetLevel();
     }
     window.__setPanels?.(true);
     if (this.missionText) {
@@ -91,10 +92,32 @@ export class TileLevelScene extends Phaser.Scene {
   /** Subclass hook — pickups, props, non-tilemap decor. */
   decorate() { }
 
-  resetPlayer() {
+  resetLevel() {
     this.playerModel.reset();
+    this.playerView.stopAnimations();
     this.playerView.setPosition(this.playerModel.tx, this.playerModel.ty);
     this.playerView.playIdle(this.playerModel.facing);
+    
+    if (this.resultGroup) {
+      this.resultGroup.destroy(true);
+      this.resultGroup = null;
+    }
+
+    for (const pickup of this.pickups.values()) {
+      if (pickup.sprite) {
+        this.tweens.killTweensOf(pickup.sprite);
+        pickup.sprite.destroy();
+      }
+    }
+    this.pickups.clear();
+    this.collected = 0;
+
+    for (const obj of this.level.objects) {
+      if (obj.type === 'pickup' || obj.type === 'pickup_with_animation') {
+        const animated = obj.type === 'pickup_with_animation';
+        this.addPickup(obj.tx, obj.ty, obj.frame, obj.key, true, animated);
+      }
+    }
   }
 
   loadObjects(objects) {
@@ -153,11 +176,113 @@ export class TileLevelScene extends Phaser.Scene {
       jumpInPlace: () => this.jumpInPlace(),
       jumpDir: (dir) => this.jumpDir(dir),
       onComplete: () => {
-        this.playerView.playIdle(this.playerModel.facing);
+        const isWin = this.pickups.size === 0;
+        if (isWin) {
+          markLevelCompleted(this.levelKey);
+          this.playerView.playCelebrate();
+          this.showResultOverlay(true);
+        } else {
+          this.playerView.playSad();
+          this.showResultOverlay(false);
+        }
       }
     };
 
     await executeProgram(moves, context, window.__GYM);
+  }
+
+  showResultOverlay(isWin) {
+    if (this.resultGroup) this.resultGroup.destroy(true);
+
+    const { width, height } = this.scale;
+    const cx = width / 2;
+    const cy = height / 2;
+    
+    this.resultGroup = this.add.container(cx, cy).setDepth(200);
+
+    const color = isWin ? '#ffcc00' : '#ff4444';
+    const message = isWin ? 'VICTORY!' : 'DEFEAT';
+
+    const text = this.add.text(0, -30, message, {
+      fontFamily: 'Arial Black',
+      fontSize: '18px',
+      color: color,
+      align: 'center',
+      stroke: '#000',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+    
+    this.resultGroup.add(text);
+
+    if (isWin) {
+      const allLevels = getAllLevels();
+      const currentIdx = allLevels.findIndex(l => l.key === this.levelKey);
+      const nextLevel = allLevels[currentIdx + 1];
+
+      const btnLabel = nextLevel ? `Next Level ▶` : 'Done! 🏠';
+      const nextBtn = this.createButton(0, 10, btnLabel, () => {
+        if (nextLevel) {
+          this.scene.start(nextLevel.scene, { levelKey: nextLevel.key, returnScreen: this.returnScreen });
+        } else {
+          this.scene.start('Menu', { screen: 'main' });
+        }
+      });
+      this.resultGroup.add(nextBtn);
+    } else {
+      const restartBtn = this.createButton(0, 0, '↺ Restart', () => {
+        const domRestart = document.getElementById('restart');
+        if (domRestart) domRestart.click();
+        else this.resetLevel();
+      });
+      const menuBtn = this.createButton(0, 30, '🏠 Menu', () => {
+        this.scene.start('Menu', { screen: this.returnScreen });
+      });
+      this.resultGroup.add([restartBtn, menuBtn]);
+    }
+
+    this.resultGroup.setScale(0);
+
+    this.tweens.add({
+      targets: this.resultGroup,
+      scale: 1,
+      duration: 600,
+      ease: 'Back.easeOut',
+    });
+  }
+
+  createButton(x, y, textStr, onClick) {
+    const btn = this.add.container(x, y);
+    const bg = this.add.graphics();
+    
+    const w = 100;
+    const h = 24;
+    const drawBg = (color) => {
+      bg.clear();
+      bg.fillStyle(color, 1);
+      bg.lineStyle(2, 0xffffff, 1);
+      bg.fillRoundedRect(-w/2, -h/2, w, h, 6);
+      bg.strokeRoundedRect(-w/2, -h/2, w, h, 6);
+    };
+    drawBg(0x333333);
+
+    const txt = this.add.text(0, 0, textStr, {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+
+    btn.add([bg, txt]);
+    
+    const zone = this.add.zone(0, 0, w, h).setInteractive({ useHandCursor: true });
+    btn.add(zone);
+
+    zone.on('pointerover', () => drawBg(0x555555));
+    zone.on('pointerout', () => drawBg(0x333333));
+    zone.on('pointerdown', () => { drawBg(0x222222); btn.y = y + 2; });
+    zone.on('pointerup', () => { drawBg(0x555555); btn.y = y; onClick(); });
+    zone.on('pointerupoutside', () => { drawBg(0x333333); btn.y = y; });
+
+    return btn;
   }
 
   checkPickup(tx, ty) {

@@ -30,10 +30,36 @@ export function clearLevelOverride(levelKey) {
 // ── Custom level registry ────────────────────────────────────────────────────
 
 export const CUSTOM_LEVELS_KEY = 'gatito_custom_levels';
+export const PROGRESS_KEY = 'gatito_progress';
+
+export const BUILTIN_LEVELS = [
+  { key: 'gym', name: 'Gym', scene: 'Gym' },
+  { key: 'main', name: 'Main Level', scene: 'Main' }
+];
 
 export function getCustomLevels() {
   try { return JSON.parse(localStorage.getItem(CUSTOM_LEVELS_KEY) || '[]'); }
   catch { return []; }
+}
+
+export function getAllLevels() {
+  return [
+    ...BUILTIN_LEVELS,
+    ...getCustomLevels().map(l => ({ ...l, scene: 'Custom' }))
+  ];
+}
+
+export function getCompletedLevels() {
+  try { return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+export function markLevelCompleted(key) {
+  const completed = getCompletedLevels();
+  if (!completed.includes(key)) {
+    completed.push(key);
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(completed));
+  }
 }
 
 export function addCustomLevel(key, name) {
