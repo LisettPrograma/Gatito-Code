@@ -1,6 +1,6 @@
 import { playSound } from "../../presentacion-gestion/js/sound.js";
 import { startDemo, stopDemo } from "../../presentacion-gestion/js/demo-game.js";
-import { schedule, scheduleSession } from "../../presentacion-gestion/js/timers.js";
+import { scheduleSession } from "../../presentacion-gestion/js/timers.js";
 
 const AVATARS = [
   { pos: "0 0" },
@@ -170,7 +170,7 @@ export const SLIDES = [
     id: "slide-problema",
     html: `
       <h2>El Problema</h2>
-      <p class="text-center">Tres barreras que impiden que los ninos accedan al pensamiento computacional.</p>
+      <p class="text-center">Cuatro barreras que impiden que los ninos accedan al pensamiento computacional.</p>
 
       <div class="problem-cards">
         <div class="problem-card" id="problem-1">
@@ -200,7 +200,7 @@ export const SLIDES = [
 
       <div class="dialog-box" style="margin-top:1rem; margin-bottom: 1.1rem; padding: 0.6rem 1.2rem; flex-shrink: 0;">
         <p style="color: var(--text-primary); margin: 0; font-size: 1rem; line-height: 1.6; text-align: center;">
-          Gatito-Code nace para resolver estos tres problemas:
+          Gatito-Code nace para resolver estos cuatro problemas:
           <span style="color: var(--green);">accesible</span>,
           <span style="color: var(--accent);">en espanol</span>,
           <span style="color: var(--accent-warm);">sin texto</span>,
