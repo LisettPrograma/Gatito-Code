@@ -1,4 +1,5 @@
 import { TILE } from '../../config/game.js';
+import { deriveAnimKey } from './WorldObjectView.js';
 
 /**
  * Visual representation of a pickup item — floating sprite + collection effect.
@@ -12,9 +13,9 @@ export class PickupView {
     const cy = ty * TILE + TILE / 2;
     this.sprite = scene.add.sprite(cx, cy, textureKey, frame).setDepth(50);
 
-    const idleKey = `${textureKey}_idle`;
-    if (scene.anims.exists(idleKey)) {
-      this.sprite.anims.play(idleKey);
+    const animKey = deriveAnimKey(textureKey, frame);
+    if (scene.anims.exists(animKey)) {
+      this.sprite.anims.play(animKey);
     } else if (animated) {
       this.floatTween = scene.tweens.add({
         targets: this.sprite, y: cy - 2,

@@ -1,8 +1,20 @@
 import { TILE } from '../../config/game.js';
 
 /**
+ * Deriva la key de animacion idle a partir del textureKey y el frame inicial.
+ * Permite que un mismo spritesheet albergue multiples estados animados.
+ */
+export function deriveAnimKey(textureKey, frame) {
+  if (textureKey === 'boats') {
+    if (frame <= 2) return 'boats_idle_moored';
+    if (frame <= 5) return 'boats_idle_free';
+  }
+  return `${textureKey}_idle`;
+}
+
+/**
  * Wrapper visual para objetos decorativos del mundo.
- * Si existe una animacion 'idle' registrada para el textureKey,
+ * Si existe una animacion idle derivada del textureKey+frame,
  * la reproduce automaticamente; de lo contrario muestra el frame estatico.
  */
 export class WorldObjectView {
@@ -11,9 +23,9 @@ export class WorldObjectView {
     const cy = ty * TILE + TILE / 2;
     this.sprite = scene.add.sprite(cx, cy, textureKey, frame).setDepth(10);
 
-    const idleKey = `${textureKey}_idle`;
-    if (scene.anims.exists(idleKey)) {
-      this.sprite.anims.play(idleKey);
+    const animKey = deriveAnimKey(textureKey, frame);
+    if (scene.anims.exists(animKey)) {
+      this.sprite.anims.play(animKey);
     }
   }
 }

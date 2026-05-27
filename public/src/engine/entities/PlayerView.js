@@ -19,9 +19,9 @@ export class PlayerView {
   }
 
   static getBaseFrameForDir(dir) {
-    if (dir === 'up') return 4;
-    if (dir === 'left') return 8;
-    if (dir === 'right') return 12;
+    if (dir === 'up') return 8;
+    if (dir === 'right') return 16;
+    if (dir === 'left') return 24;
     return 0; // down
   }
 
@@ -74,7 +74,7 @@ export class PlayerView {
       this.sprite.anims.stop();
       const [f1, f2] = PlayerView.getJumpFramesForDir(dir);
       this.sprite.setFrame(f1);
-      this.scene.time.delayedCall(Math.floor(STEP_MS / 2), () => {
+      this.scene.time.delayedCall(Math.floor(STEP_MS), () => {
         if (!this.sprite) return;
         this.sprite.setFrame(f2);
       });
@@ -84,7 +84,7 @@ export class PlayerView {
       this.scene.tweens.add({
         targets: state,
         t: 1,
-        duration: STEP_MS,
+        duration: STEP_MS * 2,
         ease: 'Linear',
         onUpdate: () => {
           const t = state.t;

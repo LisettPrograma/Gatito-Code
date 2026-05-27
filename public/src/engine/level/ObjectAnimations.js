@@ -19,6 +19,10 @@ export const OBJECT_ANIMATIONS = {
   small_bat_animations: {
     idle: { frames: [0,1,2,3,4,6,7,8,9,10,11], frameRate: 8, repeat: -1 }
   },
+  boats: {
+    idle_moored: { frames: [0,1], frameRate: 1, repeat: -1 },
+    idle_free:   { frames: [3,4], frameRate: 1, repeat: -1 },
+  },
   chicken_brown: {
     idle:   { frames: [0,1,2,3,8,9,10,11,12,13,14], frameRate: 4, repeat: -1 },
     walk:   { frames: [16,17,18,19,20,21,22,23], frameRate: 5, repeat: -1 },

@@ -110,12 +110,12 @@ export const OBJECTS = [
   { key: 'well',        label: 'Well',        url: 'assets/SproutLands-Sprites/Objects/Water well.png',                cols: 2, rows: 2, frameW: 16, frameH: 16, category: 'structures' },
   { key: 'workstation', label: 'Workstation', url: 'assets/SproutLands-Sprites/Objects/work station.png',              cols: 2, rows: 2, frameW: 16, frameH: 16, category: 'structures' },
   { key: 'paths',       label: 'Paths',       url: 'assets/SproutLands-Sprites/Objects/Paths.png',                     cols: 4, rows: 4, frameW: 16, frameH: 16, category: 'structures' },
-  { key: 'boats',       label: 'Boats',       url: 'assets/SproutLands-Sprites/Objects/Boats.png',                     cols: 9, rows: 6, frameW: 16, frameH: 16, category: 'structures' },
+  { key: 'boats',       label: 'Boats',       url: 'assets/SproutLands-Sprites/Objects/Boats.png',                     cols: 3, rows: 3, frameW: 48, frameH: 32, editorRows: 2, category: 'structures' },
 
   // ── Animals ──
   { key: 'free_chicken', label: 'Chicken',    url: 'assets/SproutLands-Sprites/Animals/Chicken/Free Chicken Sprites.png',cols: 4, rows: 2, frameW: 16, frameH: 16, category: 'animals' },
   { key: 'chicken', group: 'chicken', variant: {'size':'normal','color':'default'}, label: 'Chicken (full)',url:'assets/SproutLands-Sprites/Animals/Chicken/chicken default.png',   cols: 8, rows: 27, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow', group: 'cow', variant: {'size':'normal','color':'light'}, label: 'Cow (full)', url: 'assets/SproutLands-Sprites/Animals/Cow/Light cow animations.png',   cols: 16, rows: 16, frameW: 16, frameH: 16, category: 'animals' },
+  { key: 'cow', group: 'cow', variant: {'size':'normal','color':'light'}, label: 'Cow (full)', url: 'assets/SproutLands-Sprites/Animals/Cow/Light cow animations.png',   cols: 8, rows: 8, frameW: 32, frameH: 32, category: 'animals' },
 
   // ── Characters ──
   { key: 'premium_char', label: 'Premium Char',url:'assets/SproutLands-Sprites/Characters/Premium Charakter Spritesheet.png',cols: 8, rows: 24, frameW: 48, frameH: 48, category: 'characters' },
@@ -157,17 +157,17 @@ export const OBJECTS = [
   { key: 'egg_spritesheet_red', group: 'egg', variant: {'color':'red'}, label: 'Egg Sheet Red',  url: 'assets/SproutLands-Sprites/Animals/Chicken_Egg/Egg_Spritesheet_red.png',  cols: 10, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
 
   // ── Animals: Cows ──
-  { key: 'cow_brown', group: 'cow', variant: {'size':'normal','color':'brown'}, label: 'Cow Brown',  url: 'assets/SproutLands-Sprites/Animals/Cow/Brown cow animations.png',          cols: 16, rows: 16, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_green', group: 'cow', variant: {'size':'normal','color':'green'}, label: 'Cow Green',  url: 'assets/SproutLands-Sprites/Animals/Cow/Green cow animation sprites.png', cols: 16, rows: 16, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_pink', group: 'cow', variant: {'size':'normal','color':'pink'}, label: 'Cow Pink',   url: 'assets/SproutLands-Sprites/Animals/Cow/Pink cow animation sprites.png',  cols: 16, rows: 16, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_purple', group: 'cow', variant: {'size':'normal','color':'purple'}, label: 'Cow Purple', url: 'assets/SproutLands-Sprites/Animals/Cow/Purple cow animation sprites.png',cols: 16, rows: 16, frameW: 16, frameH: 16, category: 'animals' },
+  { key: 'cow_brown', group: 'cow', variant: {'size':'normal','color':'brown'}, label: 'Cow Brown',  url: 'assets/SproutLands-Sprites/Animals/Cow/Brown cow animations.png',          cols: 8, rows: 8, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_green', group: 'cow', variant: {'size':'normal','color':'green'}, label: 'Cow Green',  url: 'assets/SproutLands-Sprites/Animals/Cow/Green cow animation sprites.png', cols: 8, rows: 8, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_pink', group: 'cow', variant: {'size':'normal','color':'pink'}, label: 'Cow Pink',   url: 'assets/SproutLands-Sprites/Animals/Cow/Pink cow animation sprites.png',  cols: 8, rows: 8, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_purple', group: 'cow', variant: {'size':'normal','color':'purple'}, label: 'Cow Purple', url: 'assets/SproutLands-Sprites/Animals/Cow/Purple cow animation sprites.png',cols: 8, rows: 8, frameW: 32, frameH: 32, category: 'animals' },
 
   // ── Animals: Baby Cows ──
-  { key: 'cow_baby_brown', group: 'cow', variant: {'size':'baby','color':'brown'}, label: 'Baby Cow Brown',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby brown cow animations sprites.png', cols: 16, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_baby_green', group: 'cow', variant: {'size':'baby','color':'green'}, label: 'Baby Cow Green',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby green cow animations sprites.png', cols: 16, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_baby_light', group: 'cow', variant: {'size':'baby','color':'light'}, label: 'Baby Cow Light',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby light cow animations sprites.png', cols: 16, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_baby_pink', group: 'cow', variant: {'size':'baby','color':'pink'}, label: 'Baby Cow Pink',   url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby pink cow animations sprites.png',  cols: 16, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
-  { key: 'cow_baby_purple', group: 'cow', variant: {'size':'baby','color':'purple'}, label: 'Baby Cow Purple', url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby purple cow animations sprites.png',cols: 16, rows: 18, frameW: 16, frameH: 16, category: 'animals' },
+  { key: 'cow_baby_brown', group: 'cow', variant: {'size':'baby','color':'brown'}, label: 'Baby Cow Brown',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby brown cow animations sprites.png', cols: 8, rows: 9, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_baby_green', group: 'cow', variant: {'size':'baby','color':'green'}, label: 'Baby Cow Green',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby green cow animations sprites.png', cols: 8, rows: 9, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_baby_light', group: 'cow', variant: {'size':'baby','color':'light'}, label: 'Baby Cow Light',  url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby light cow animations sprites.png', cols: 8, rows: 9, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_baby_pink', group: 'cow', variant: {'size':'baby','color':'pink'}, label: 'Baby Cow Pink',   url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby pink cow animations sprites.png',  cols: 8, rows: 9, frameW: 32, frameH: 32, category: 'animals' },
+  { key: 'cow_baby_purple', group: 'cow', variant: {'size':'baby','color':'purple'}, label: 'Baby Cow Purple', url: 'assets/SproutLands-Sprites/Animals/Cow_Baby/baby purple cow animations sprites.png',cols: 8, rows: 9, frameW: 32, frameH: 32, category: 'animals' },
 
   // ── Nature: Trees with fruit ──
   { key: 'tree_full', group: 'tree', variant: {'fruit':'none'}, label: 'Tree Full',   url: 'assets/SproutLands-Sprites/Objects/Tree animations/tree sprites.png',      cols: 36, rows: 15, frameW: 16, frameH: 16, category: 'nature' },

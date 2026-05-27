@@ -438,7 +438,7 @@ function renderObjPalette() {
   }
 
   objPalette.style.setProperty('--cols', o.cols);
-  for (let r = 0; r < o.rows; r++) {
+  for (let r = 0; r < (o.editorRows ?? o.rows); r++) {
     for (let c = 0; c < o.cols; c++) {
       const frame = r * o.cols + c;
       const d = document.createElement('div');
