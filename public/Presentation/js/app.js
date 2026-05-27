@@ -106,11 +106,19 @@ async function goToSlide(index, immediate = false) {
     await transitionTo(oldEl, newEl, direction);
   }
 
+  resetSlideAnimations(newEl);
+
   if (newDef && newDef.onEnter) {
     newDef.onEnter(slideSessionId);
   }
   
   isTransitioning = false;
+}
+
+function resetSlideAnimations(slideEl) {
+  slideEl.querySelectorAll('.show').forEach(el => el.classList.remove('show'));
+  slideEl.querySelectorAll('.animate-underline').forEach(el => el.classList.remove('animate-underline'));
+  slideEl.querySelectorAll('.progress-fill').forEach(el => { el.style.width = '0'; });
 }
 
 function updateCounter() {
