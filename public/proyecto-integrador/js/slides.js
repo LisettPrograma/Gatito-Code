@@ -127,7 +127,7 @@ export const SLIDES = [
           desc: "Implementacion de mecanicas de niveles, integracion de assets y optimizacion de rendimiento.",
         },
         {
-          name: "Lucas Gimenez",
+          name: "Lucas Fernandez",
           emoji: "🔍",
           title: "QA y Documentacion",
           desc: "Diseno de casos de prueba, control de calidad y redaccion de documentacion tecnica.",
@@ -966,7 +966,7 @@ export const SLIDES = [
         { name: "Iara Baya", pos: "-144px 0" },
         { name: "Luis Herrera", pos: "-216px 0" },
         { name: "Inti Taretto", pos: "-288px 0" },
-        { name: "Lucas Gimenez", pos: "-360px 0" },
+        { name: "Lucas Fernandez", pos: "-360px 0" },
       ];
 
       const grid = document.getElementById("thanks-grid");

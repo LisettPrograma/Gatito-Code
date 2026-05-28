@@ -99,7 +99,7 @@ export const SLIDES = [
         { name: "Iara Baya", emoji: "🛠️", title: "Desarrolladora", desc: "Desarrollo del motor de tilemaps, sistema de clima y editor visual de niveles." },
         { name: "Luis Herrera", emoji: "🎨", title: "Disenador UI/UX", desc: "Creacion de interfaces, paletas de colores, tipografia pixel-art y experiencia de usuario." },
         { name: "Inti Taretto", emoji: "⚡", title: "Desarrollador", desc: "Implementacion de mecanicas de niveles, integracion de assets y optimizacion de rendimiento." },
-        { name: "Lucas Gimenez", emoji: "🔍", title: "QA & Documentacion", desc: "Diseno de casos de prueba, control de calidad y redaccion de documentacion tecnica." }
+        { name: "Lucas Fernandez", emoji: "🔍", title: "QA & Documentacion", desc: "Diseno de casos de prueba, control de calidad y redaccion de documentacion tecnica." }
       ];
 
       const grid = document.getElementById('party-grid');
@@ -506,7 +506,7 @@ export const SLIDES = [
           <div class="doc-subtitle">Proyecto: Juego Educativo de Pensamiento Computacional</div>
           <div class="doc-date">
             Fecha: 27 de mayo de 2026 &nbsp;|&nbsp; Materia: Gestion de Proyectos<br>
-            Equipo: Lisett Castillo &middot; Brian Herrera &middot; J. Luis Herrera &middot; Iara Baya &middot; Inti Taretto &middot; Lucas Gimenez
+            Equipo: Lisett Castillo &middot; Brian Herrera &middot; J. Luis Herrera &middot; Iara Baya &middot; Inti Taretto &middot; Lucas Fernandez
           </div>
         </div>
 
@@ -759,7 +759,7 @@ node_modules/\t        Instalado — Vitest v4.1.7 + dependencias
         { name: "Iara Baya",        pos: '-144px 0' },
         { name: "Luis Herrera",     pos: '-216px 0' },
         { name: "Inti Taretto",     pos: '-288px 0' },
-        { name: "Lucas Gimenez",    pos: '-360px 0' }
+        { name: "Lucas Fernandez",    pos: '-360px 0' }
       ];
 
       const grid = document.getElementById('thanks-grid');
