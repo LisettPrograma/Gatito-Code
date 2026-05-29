@@ -42,7 +42,7 @@ export const SLIDES = [
     `,
     onEnter: (sessionId) => {
       const text =
-        "Gatito-Code es un videojuego educativo de pensamiento computacional con estetica pixel-art, destinado a ninos y ninas de 8 a 10 anos sin conocimientos previos de programacion. El juego estara disponible originalmente en la web, sin necesidad de instalar nada. El jugador guia a un gatito en un mapa de tiles, construyendo programas mediante bloques de instrucciones arrastrables (arriba, abajo, izquierda, derecha) para recolectar objetos y completar niveles.";
+        "Gatito-Code es un videojuego educativo de pensamiento computacional con estetica pixel-art, destinado a ninos y ninas de 6 a 10 anos sin conocimientos previos de programacion. El juego estara disponible originalmente en la web, sin necesidad de instalar nada. El jugador guia a un gatito en un mapa de tiles, construyendo programas mediante bloques de instrucciones arrastrables (arriba, abajo, izquierda, derecha) para recolectar objetos y completar niveles.";
       const highlightedText = text
         .replace(
           "videojuego educativo",
@@ -182,7 +182,7 @@ export const SLIDES = [
         <div class="problem-card" id="problem-2">
           <div class="problem-icon">🌐</div>
           <div class="problem-stat">Las herramientas no hablan espanol</div>
-          <div class="problem-desc">Scratch, Code.org y similares estan en ingles o tienen traducciones deficientes. Los ninos de 8 anos necesitan interfaces en su idioma nativo para aprender sin frustracion.</div>
+          <div class="problem-desc">Scratch, Code.org y similares estan en ingles o tienen traducciones deficientes. Los ninos de 6 a 10 anos necesitan interfaces en su idioma nativo para aprender sin frustracion.</div>
         </div>
 
         <div class="problem-card" id="problem-3">
@@ -305,7 +305,7 @@ export const SLIDES = [
         <div class="scrum-panel" id="publico-panel-left">
           <h3>Nuestro Jugador</h3>
           <ul class="scrum-list">
-            <li><span class="icon">👦</span><span class="label">8 a 10 anos, hispanohablante</span>Ninos en etapa escolar primaria que leen textos cortos y manejan mouse o trackpad con soltura.</li>
+            <li><span class="icon">👦</span><span class="label">6 a 10 anos, hispanohablante</span>Ninos en etapa escolar primaria que leen textos cortos y manejan mouse o trackpad con soltura.</li>
             <li><span class="icon">🎯</span><span class="label">Sin experiencia previa</span>No conocen Scratch ni ningun lenguaje de programacion. Es su primer contacto con el pensamiento computacional.</li>
             <li><span class="icon">🧩</span><span class="label">Aprende mejor jugando</span>La gamificacion y la narrativa visual son mas efectivas que la instruccion textual a esta edad.</li>
             <li><span class="icon">🔓</span><span class="label">Necesita autonomia</span>Las primeras secciones del juego deben ser completables sin ayuda de un adulto ni instrucciones escritas complejas.</li>
@@ -426,36 +426,7 @@ export const SLIDES = [
   },
 
   // ========================================================
-  // Slide 7: Demo Interactiva
-  // ========================================================
-  {
-    id: "slide-demo",
-    html: `
-      <h2>Demo Visual</h2>
-      <p class="text-center" style="margin-bottom: 0.3rem;">Identidad Visual del Juego</p>
-      <p class="text-center" style="font-size: 0.85rem; color: var(--accent); margin-bottom: 0.75rem;">Nuestro personaje principal recorre un mapa de ejemplo con la estetica pixel-art del juego.</p>
-
-      <div class="arcade-machine">
-        <div class="arcade-screen" id="demo-container"></div>
-        <div class="arcade-controls">
-          <div class="arcade-stick"></div>
-          <div class="arcade-btn red"></div>
-          <div class="arcade-btn blue"></div>
-          <div class="arcade-btn green"></div>
-        </div>
-      </div>
-      ${CORNERS}
-    `,
-    onEnter: () => {
-      startDemo("demo-container");
-    },
-    onLeave: () => {
-      stopDemo();
-    },
-  },
-
-  // ========================================================
-  // Slide 8: Arquitectura & Tecnologías
+  // Slide 7: Arquitectura & Tecnologías
   // ========================================================
   {
     id: "slide-arquitectura",
@@ -525,7 +496,7 @@ export const SLIDES = [
   },
 
   // ========================================================
-  // Slide 9: Estado Actual del Desarrollo
+  // Slide 8: Estado Actual del Desarrollo
   // ========================================================
   {
     id: "slide-estado",
@@ -648,7 +619,7 @@ export const SLIDES = [
   },
 
   // ========================================================
-  // Slide 10: Roadmap del Producto
+  // Slide 9: Roadmap del Producto
   // ========================================================
   {
     id: "slide-roadmap",
@@ -748,7 +719,7 @@ export const SLIDES = [
   },
 
   // ========================================================
-  // Slide 11: Estrategia de Lanzamiento
+  // Slide 10: Estrategia de Lanzamiento
   // ========================================================
   {
     id: "slide-lanzamiento",
@@ -861,7 +832,7 @@ export const SLIDES = [
   },
 
   // ========================================================
-  // Slide 12: Marketing & Monetización
+  // Slide 11: Marketing & Monetización
   // ========================================================
   {
     id: "slide-marketing",
@@ -927,6 +898,35 @@ export const SLIDES = [
           sessionId,
         );
       });
+    },
+  },
+
+  // ========================================================
+  // Slide 12: Demo Interactiva
+  // ========================================================
+  {
+    id: "slide-demo",
+    html: `
+      <h2>Demo Visual</h2>
+      <p class="text-center" style="margin-bottom: 0.3rem;">Identidad Visual del Juego</p>
+      <p class="text-center" style="font-size: 0.85rem; color: var(--accent); margin-bottom: 0.75rem;">Nuestro personaje principal recorre un mapa de ejemplo con la estetica pixel-art del juego.</p>
+
+      <div class="arcade-machine">
+        <div class="arcade-screen" id="demo-container"></div>
+        <div class="arcade-controls">
+          <div class="arcade-stick"></div>
+          <div class="arcade-btn red"></div>
+          <div class="arcade-btn blue"></div>
+          <div class="arcade-btn green"></div>
+        </div>
+      </div>
+      ${CORNERS}
+    `,
+    onEnter: () => {
+      startDemo("demo-container");
+    },
+    onLeave: () => {
+      stopDemo();
     },
   },
 
