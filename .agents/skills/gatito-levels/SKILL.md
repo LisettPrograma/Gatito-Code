@@ -1,3 +1,8 @@
+---
+name: gatito-levels
+description: Guía la creación de nuevos niveles para Gatito-Code. Use when the user asks to create a map, level, design a puzzle, or add a new stage to the game. Includes pedagogical design rules, asset catalog, weather system, and semantic level compiler.
+---
+
 # Skill: Diseñador de Niveles Gatito-Code
 
 ## Propósito
@@ -21,48 +26,75 @@ Cuando el usuario te pida crear un mapa o un nivel, **NO** generes código ni ar
 
 ## Catálogo de Assets Disponibles
 
+> **Nota:** Este es un catálogo resumido con los assets más útiles para diseñar niveles. El registro completo de todos los tilesets, objetos, animales e items disponibles está en `public/src/engine/level/TileRegistry.js` (más de 80 spritesheets). Si el usuario pide un asset específico que no aparezca aquí, verifica su existencia en ese archivo antes de decir que no está disponible.
+
 ### Terrenos Transitables (Autotile)
-Estos son los suelos por donde el jugador camina. Se pintan en la capa `floor`.
+Se pintan en la capa `floor`.
 - `grass` — Pasto verde básico (GID 1-99)
 - `dirt` — Tierra arada/marrón (GID 200-299)
-- `water` — Agua (GID 400-499)
+- `water` — Agua animada (GID 400-499)
 
 ### Obstáculos / Muros (Autotile)
-Se pintan en la capa `walls`. Todo GID distinto de 0 bloquea el paso.
+Se pintan en la capa `walls`. Todo GID != 0 bloquea el paso.
 - `hills` — Colinas y elevaciones verdes (GID 300-399)
 - `fences` — Cercas de madera (GID 100-199)
-- `Wooden House` — Casa de madera completa (usar con cuidado, ocupa mucho espacio)
-- `Wooden_House_Roof_Tilset` — Techos modulares
-- `Wooden_House_Walls_Tilset` — Paredes modulares
-- `Doors` — Puertas de madera
-- `ground tiles` — Suelos de piedra o madera para interiores
-- `Building parts` — Partes misceláneas de construcción
+- `fences_v2` — Cercas extendidas (GID 3700+)
 
-### Objetos (Pickups y Decoración)
-Se colocan en el array `objects` del JSON. `type` puede ser `"pickup"` (coleccionable) o `"deco"` (decoración).
-- `plants` — Cultivos y plantas pequeñas (frames 0-11)
-- `grass_props` — Elementos naturales: tocones, arbustos, troncos, hongos, flores (frames 0-44)
-- `furniture` — Mobiliario: camas, mesas, sillas, estantes (frames 0-53)
-- `tools` — Herramientas de granja: picos, hachas, regaderas (frames 0-5)
-- `Trees, stumps and bushes` — Árboles enteros, tocones, arbustos grandes
-- `Farming Plants` — Cultivos en diferentes estados de crecimiento
-- `Mushrooms, Flowers, Stones` — Hongos, flores y rocas
-- `Boats` — Botes pequeños
-- `Chest` — Cofres de tesoro
-- `Egg item` — Huevo como objeto coleccionable
-- `Piknik basket` / `Piknik blanket` — Cesta y manta de picnic
-- `signs` / `signs_sides` — Letreros de madera
-- `Water Objects` — Objetos acuáticos
-- `Water well` — Pozo de agua
-- `Wood Bridge` — Puente de madera
-- `work station` — Mesa de trabajo/crafteo
+### Objetos Decorativos y Estructuras
+Se colocan en el array `objects` del JSON con `type: "deco"`.
+- `grass_props` — Arbustos, troncos, hongos, flores (cols: 9, rows: 5)
+- `plants` — Cultivos pequeños (cols: 6, rows: 2)
+- `trees` — Árboles, tocones y arbustos grandes (cols: 12, rows: 7)
+- `mushrooms` — Hongos, flores y piedras (cols: 12, rows: 5)
+- `farming` — Cultivos en crecimiento (cols: 5, rows: 15)
+- `furniture` — Mobiliario básico (cols: 9, rows: 6)
+- `signs` — Letreros de madera frontales (cols: 6, rows: 4)
+- `signs_sides` — Letreros laterales (cols: 8, rows: 2)
+- `well` — Pozo de agua (cols: 2, rows: 2)
+- `wood_bridge` — Puente de madera v1 (cols: 5, rows: 3)
+- `wooden_bridge_v2` — Puente de madera v2 (cols: 4, rows: 3)
+- `workstation` — Mesa de trabajo (cols: 2, rows: 2)
+- `paths` — Caminos decorativos (cols: 4, rows: 4)
+- `boats` — Botes pequeños (cols: 9, rows: 6)
+- `water_objs` — Objetos acuáticos (cols: 12, rows: 2)
+- `barn_structures` — Estructuras de granja (cols: 3, rows: 4)
+- `chicken_houses` — Gallineros (cols: 24, rows: 11)
+- `door_animation` — Puertas animadas (cols: 18, rows: 2)
+- `fence_gates_anim` — Puertas de cerca animadas (cols: 10, rows: 3)
+- `mailbox_anim` — Buzón animado (cols: 11, rows: 21)
+- `campfire` — Fogata (cols: 7, rows: 3)
+
+### Items (Pickups Coleccionables)
+Se colocan en `objects` con `type: "pickup"`. El jugador debe recogerlos para completar la misión.
+- `egg_items` — Huevo (cols: 5, rows: 1)
+- `tools_items` — Herramientas y materiales (cols: 4, rows: 3)
+- `piknik_basket` — Cesta de picnic (cols: 1, rows: 1)
+- `piknik_blanket` — Manta de picnic (cols: 3, rows: 3)
+- `fruit_berries_items` — Frutas y bayas (cols: 4, rows: 2)
+- `milk_items` — Productos lácteos (cols: 4, rows: 11)
+- `grass_ground_items` — Items de suelo (cols: 6, rows: 2)
+- `farming_plants_items` — Items de cultivo (cols: 2, rows: 15)
+
+### Cofres (Estructuras con animación)
+- `birch_chest`, `cherry_chest`, `golden_chest`, `oak_chest`, `pine_chest`, `silver_chest` — Cofres de diferentes materiales (cols: 10, rows: 4 cada uno)
 
 ### Animales (Decorativos / Ambientales)
-- `Chicken`, `Chicken_Baby`, `Chicken_Egg`
-- `Cow`, `Cow_Baby`
+- `free_chicken` — Gallina libre (cols: 4, rows: 2)
+- `chicken` / `chicken_blue` / `chicken_brown` / `chicken_green` / `chicken_red` — Gallinas de colores (cols: 8, rows: 27)
+- `chicken_baby` / `chicken_baby_blue` / `chicken_baby_brown` / `chicken_baby_green` / `chicken_baby_red` — Pollitos (cols: 8, rows: 19)
+- `cow` / `cow_brown` / `cow_green` / `cow_pink` / `cow_purple` — Vacas (cols: 16, rows: 16)
+- `cow_baby_brown` / `cow_baby_green` / `cow_baby_light` / `cow_baby_pink` / `cow_baby_purple` — Terneros (cols: 16, rows: 18)
+- `bat_animations` — Murciélagos (cols: 6, rows: 2)
+- `small_green_slime` — Slime verde (cols: 12, rows: 8)
+- `fish_sprites` — Peces (cols: 10, rows: 5)
 
 ### Personajes (Solo referencia, no para objetos del mapa)
 - `character_base` — El protagonista controlado por el jugador
+
+### Nota sobre los `key` de objetos
+En el esquema semántico, el campo `key` debe coincidir **exactamente** con el `key` registrado en `TileRegistry.js`. Por ejemplo:
+- Correcto: `{ "key": "well", "frame": 0 }`
+- Incorrecto: `{ "key": "Water well", "frame": 0 }`
 
 ---
 
@@ -97,7 +129,7 @@ El motor NO soporta cambiar colores de los tiles dinámicamente. La emoción se 
 |---------|---------------|-------------------|
 | **Alegre / Feliz** | Despejado, polen ligero (`pollen: 0.3`) | `grass`, flores (`grass_props`), animales, puentes, picnic |
 | **Triste / Melancólico** | Lluvia ligera (`rain: 0.4`), noche tenue (`night: 0.3`) | `dirt` predominante, tocones cortados, mobiliario abandonado, pozo seco, cercas rotas (`fences`) |
-| **Misterioso** | Noche (`night: 0.7`), niebla implícita por oscuridad | Casa de madera (`Wooden House`), `fences`, carteles (`signs`), cofres (`Chest`), puentes (`Wood Bridge`) |
+| **Misterioso** | Noche (`night: 0.7`), niebla implícita por oscuridad | Casa de madera (`wooden_house`), `fences`, carteles (`signs`), cofres (`oak_chest`), puentes (`wood_bridge`) |
 | **Aterrador** | Noche intensa (`night: 0.9`), lluvia torrencial (`rain: 0.9`) | Todo lo anterior + ausencia total de animales, muchos `hills` (montañas) cerrando el espacio |
 | **Tranquilo / Nostálgico** | Despejado de noche (`night: 0.5`), nieve ligera (`snow: 0.3`) | `grass` con árboles (`Trees`), animales pasivos, pozo, caminos de `dirt` |
 | **Caótico** | Tormenta de hojas (`leaves: 0.8`) + lluvia (`rain: 0.6`) | Objetos dispersos sin orden, múltiples tipos de terreno mezclados, puentes rotos, obstáculos inesperados |
@@ -123,30 +155,38 @@ El motor soporta múltiples efectos simultáneos. En el JSON del nivel se incluy
 
 ## Flujo de Integración al Código Fuente
 
-Cuando generes un nuevo nivel, la IA debe realizar estos pasos exactos:
+Cuando generes un nuevo nivel, la IA debe realizar estos pasos exactos en el orden indicado. Omitir cualquiera de ellos dejará el nivel parcialmente inaccesible.
 
 ### Paso 1: Generar el archivo JSON del nivel
 Guardar en: `public/levels/[nombre].json`
 
-### Paso 2: Registrar el nivel en el cargador
-Editar `public/src/level/TileLevel.js`:
+### Paso 2: Registrar el nivel en el cargador de recursos
+Editar `public/src/engine/level/TileRegistry.js`:
 - Añadir `"[nombre]"` al array `LEVELS` (Ej: `export const LEVELS = ['gym', 'main', 'bosque_encantado'];`)
 
-### Paso 3: Agregar botón al menú
-Editar `public/src/scenes/MenuScene.js` en la sección `screen === 'levels'`:
+### Paso 3: Agregar botón de juego al menú principal
+Editar `public/src/engine/scenes/MenuScene.js` en la sección `screen === 'levels'`:
 - Añadir: `this.makeButton(bx, y, 'Nombre Visible', () => this.scene.start('Custom', { levelKey: '[nombre]' }));`
+- **Si se creó una escena personalizada** (Paso 5), usar en su lugar: `this.scene.start('[NombreCamelCase]')`
 
-### Paso 4 (Opcional - Recomendado para narrativa personalizada): Crear una clase de Escena
-Si el usuario pidió `missionText` o `welcomeMessage` personalizados, crear `public/src/scenes/[NombreCamelCase]Scene.js`:
+### Paso 4: Agregar entrada al editor de niveles (OBLIGATORIO)
+Editar `public/src/engine/scenes/MenuScene.js` en la sección `screen === 'editor'`, dentro del bucle `for (const lv of [...])`:
+- Añadir el nivel al array hardcodeado: `{ key: '[nombre]', name: 'Nombre Visible' }`
+- Ejemplo: `for (const lv of [{ key: 'gym', name: 'Gym' }, { key: 'main', name: 'Main' }, { key: '[nombre]', name: 'Nombre Visible' }, ...getCustomLevels()])`
+
+> **Nota:** El editor itera una lista estática de niveles base. Si no se añade aquí, el nivel no aparecerá en "Level Editor → editar existente".
+
+### Paso 5 (Opcional - Recomendado): Crear una clase de Escena personalizada
+Si el usuario pidió `missionText` o `welcomeMessage` personalizados, crear `public/src/engine/levels/[NombreCamelCase]Scene.js`:
 
 ```javascript
-import { TileLevelScene } from './TileLevelScene.js';
+import { TileLevelScene } from '../scenes/TileLevelScene.js';
 
 export class [NombreCamelCase]Scene extends TileLevelScene {
   constructor() {
     super('[NombreCamelCase]');
     this.levelKey = '[nombre]';
-    this.missionText = '[Texto de misión personalizado]';
+    this.missionText = '[Texto de mision personalizado]';
   }
 
   init(data) {
@@ -157,11 +197,11 @@ export class [NombreCamelCase]Scene extends TileLevelScene {
 }
 ```
 
-### Paso 5 (Si se creó Escena personalizada): Registrar en el motor
+### Paso 6 (Si se creó Escena personalizada): Registrar en el motor del juego
 Editar `public/src/main.js`:
-- Importar la nueva escena: `import { [NombreCamelCase]Scene } from './scenes/[NombreCamelCase]Scene.js';`
-- Agregarla al array `scene: [ ..., [NombreCamelCase]Scene ]`
-- **Y modificar el botón del menú** para que llame a `this.scene.start('[NombreCamelCase]')` en lugar de `'Custom'`.
+- Importar la nueva escena: `import { [NombreCamelCase]Scene } from './engine/levels/[NombreCamelCase]Scene.js';`
+- Agregarla al array de escenas: `scene: [ ..., [NombreCamelCase]Scene ]`
+- **Y modificar el botón del menú** (Paso 3) para que llame a `this.scene.start('[NombreCamelCase]')` en lugar de `'Custom'`.
 
 ---
 
@@ -187,7 +227,7 @@ La IA NO debe escribir a mano arrays de 192 GIDs. En su lugar, debe generar un a
   ],
   "objects": [
     { "tx": 10, "ty": 5, "key": "grass_props", "frame": 20, "type": "pickup" },
-    { "tx": 5, "ty": 3, "key": "Trees, stumps and bushes", "frame": 0, "type": "deco" }
+    { "tx": 5, "ty": 3, "key": "trees", "frame": 0, "type": "deco" }
   ]
 }
 ```
@@ -255,7 +295,7 @@ El validador verificará:
     { "tx": 13, "ty": 9, "key": "tools", "frame": 0, "type": "pickup" },
     { "tx": 4, "ty": 8, "key": "tools", "frame": 2, "type": "pickup" },
     { "tx": 10, "ty": 3, "key": "furniture", "frame": 6, "type": "deco" },
-    { "tx": 5, "ty": 5, "key": "Chest", "frame": 0, "type": "deco" }
+    { "tx": 5, "ty": 5, "key": "oak_chest", "frame": 0, "type": "deco" }
   ]
 }
 ```
@@ -267,10 +307,12 @@ node .agents/skills/gatito-levels/validate-level.js public/levels/granja_abandon
 ```
 
 ### Integración al código:
-1. Añadir `"granja_abandonada"` a `LEVELS` en `TileLevel.js`.
-2. Añadir botón en `MenuScene.js`.
-3. Crear `GranjaAbandonadaScene.js` con `missionText` personalizado.
-4. Registrar escena en `main.js`.
+1. Añadir `"granja_abandonada"` a `LEVELS` en `public/src/engine/level/TileRegistry.js`.
+2. Añadir botón de juego en `public/src/engine/scenes/MenuScene.js` (sección `levels`).
+3. Añadir entrada al editor en `public/src/engine/scenes/MenuScene.js` (sección `editor`).
+4. Crear `public/src/engine/levels/GranjaAbandonadaScene.js` con `missionText` y `welcomeMessage` personalizados.
+5. Importar y registrar `GranjaAbandonadaScene` en `public/src/main.js`.
+6. Actualizar el botón del menú para usar `this.scene.start('GranjaAbandonada')`.
 
 ---
 
