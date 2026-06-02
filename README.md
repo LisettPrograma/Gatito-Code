@@ -281,9 +281,9 @@ Los terrenos usan un bitmask de 4 vecinos cardinales: North=1, East=2, South=4, 
 ## Limitaciones conocidas
 
 - No hay condición de victoria cuando se recolectan todos los pickups
-- `MainScene` hardcodea pickups en `decorate()` en lugar de leerlos completamente desde JSON
+- Pickups y objetos se cargan completamente desde el JSON del nivel; `MainScene` ya no hardcodea entidades en `decorate()`
 - La comunicación DOM ↔ Phaser depende de variables globales (`window.*`)
-- Hay tests automatizados de dominio con Vitest, pero aún no existe pipeline de CI
+- `domain/` es JavaScript puro y testable con Node; existen tests unitarios con Vitest en `tests/domain.test.js`, pero aún no hay pipeline de CI configurada
 - `CustomScene` usa `levelKey` dinámico pero comparte la misma mecánica que `MainScene`/`GymScene`
 
 ## Licencia
