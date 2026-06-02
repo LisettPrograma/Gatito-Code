@@ -108,66 +108,79 @@ function injectStyles() {
 }
 
 // Muestra un cartel con texto y espera a que el usuario haga clic en "continuar"
-function showCard(html) {
+// Si se cancela, elimina el card del DOM y resuelve inmediatamente.
+function showCard(html, signal) {
   return new Promise(resolve => {
     const card = document.createElement('div');
     card.id = 'intro-card';
     card.innerHTML = `<p>${html}</p><button>continuar ›</button>`;
     document.body.appendChild(card);
 
+    const dismiss = () => { card.remove(); resolve(); };
+
     card.querySelector('button').addEventListener('click', () => {
       card.classList.add('icard-out');
-      card.addEventListener('animationend', () => {
-        card.remove();
-        resolve();
-      }, { once: true });
+      card.addEventListener('animationend', dismiss, { once: true });
     });
+
+    signal?._onCancel(dismiss);
   });
 }
 
 // ── Secuencia principal ────────────────────────────────────────────────────────
-export async function runNivel0Intro(scene, missionText = null) {
+export async function runNivel0Intro(scene, missionText = null, signal = null) {
   const pts = scene.introPoints || [];
   if (!pts.length) return;
 
   injectStyles();
   window.__setPanels?.(false);
   await wait(scene, 200);
+  if (signal?.cancelled) return;
 
   // Primer punto: el spawn del gatito
   const p0 = { x: pts[0].tx * TILE + 8, y: pts[0].ty * TILE + 8 };
   await panTo(scene, p0, 2.5, 1000);
-  await showCard(MSGS[0]);
+  if (signal?.cancelled) return;
+  await showCard(MSGS[0], signal);
+  if (signal?.cancelled) return;
 
   // Vista del jardín completo
   await panTo(scene, FULL, 1, 950);
-  await showCard('🌿 Este es su jardín.');
+  if (signal?.cancelled) return;
+  await showCard('🌿 Este es su jardín.', signal);
+  if (signal?.cancelled) return;
 
   // Puntos restantes (NPCs)
   for (let i = 1; i < pts.length; i++) {
     const pos = { x: pts[i].tx * TILE + 8, y: pts[i].ty * TILE + 8 };
     await panTo(scene, pos, 2.5, 900);
-    await showCard(MSGS[i] ?? `Punto ${i + 1}`);
+    if (signal?.cancelled) return;
+    await showCard(MSGS[i] ?? `Punto ${i + 1}`, signal);
+    if (signal?.cancelled) return;
   }
 
   // Volver al mapa completo
   await panTo(scene, FULL, 1, 800);
+  if (signal?.cancelled) return;
 
   // Mostrar paneles y resaltar con el mensaje final
   window.__setPanels?.(true);
   await wait(scene, 350);
+  if (signal?.cancelled) return;
 
   // Panel de movimientos
   const dirsPanel = document.getElementById('dirs');
   dirsPanel?.classList.add('intro-highlight', 'intro-zoom');
-  await showCard('🎮 Tu misión es ayudarle mediante movimientos a conseguir sus preciadas frutas.<br><br>Elegí los movimientos adecuados… ¿me ayudás a que descanse después de su día de trabajo?');
+  await showCard('🎮 Tu misión es ayudarle mediante movimientos a conseguir sus preciadas frutas.<br><br>Elegí los movimientos adecuados… ¿me ayudás a que descanse después de su día de trabajo?', signal);
   dirsPanel?.classList.remove('intro-highlight', 'intro-zoom');
+  if (signal?.cancelled) return;
 
   // Panel de programa
   await wait(scene, 200);
+  if (signal?.cancelled) return;
   const queuePanel = document.getElementById('queue');
   queuePanel?.classList.add('intro-highlight', 'intro-zoom');
-  await showCard('▶ Acá se verán tus movimientos.');
+  await showCard('▶ Acá se verán tus movimientos.', signal);
   queuePanel?.classList.remove('intro-highlight', 'intro-zoom');
 
   if (missionText) window.__setMission?.(missionText);

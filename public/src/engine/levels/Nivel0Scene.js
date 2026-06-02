@@ -21,8 +21,20 @@ export class Nivel0Scene extends TileLevelScene {
     this.debugText?.setVisible(false);
     this.fpsVisible = false;
     this._disableFunc1();
-    runNivel0Intro(this, 'Ayuda a Gatito a llegar a su casa para descansar.')
+
+    const signal = { cancelled: false, _cbs: [], _onCancel(cb) { this._cbs.push(cb); } };
+    this.events.once('shutdown', () => {
+      signal.cancelled = true;
+      signal._cbs.forEach(cb => cb());
+      signal._cbs = [];
+      document.getElementById('intro-card')?.remove();
+      document.getElementById('dirs')?.classList.remove('intro-highlight', 'intro-zoom');
+      document.getElementById('queue')?.classList.remove('intro-highlight', 'intro-zoom');
+    });
+
+    runNivel0Intro(this, 'Ayuda a Gatito a llegar a su casa para descansar.', signal)
       .then(() => {
+        if (signal.cancelled) return;
         this._introComplete = true;
         super.showIdlePanel();
       });
