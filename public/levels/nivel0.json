@@ -1038,118 +1038,6 @@
   },
   "objects": [
     {
-      "tx": 2,
-      "ty": 2,
-      "key": "small_house",
-      "frame": 1,
-      "type": "deco"
-    },
-    {
-      "tx": 2,
-      "ty": 3,
-      "key": "small_house",
-      "frame": 13,
-      "type": "deco"
-    },
-    {
-      "tx": 1,
-      "ty": 3,
-      "key": "small_house",
-      "frame": 12,
-      "type": "deco"
-    },
-    {
-      "tx": 1,
-      "ty": 2,
-      "key": "small_house",
-      "frame": 0,
-      "type": "deco"
-    },
-    {
-      "tx": 3,
-      "ty": 2,
-      "key": "small_house",
-      "frame": 2,
-      "type": "deco"
-    },
-    {
-      "tx": 3,
-      "ty": 3,
-      "key": "small_house",
-      "frame": 14,
-      "type": "deco"
-    },
-    {
-      "tx": 2,
-      "ty": 4,
-      "key": "small_house",
-      "frame": 25,
-      "type": "deco"
-    },
-    {
-      "tx": 1,
-      "ty": 4,
-      "key": "small_house",
-      "frame": 24,
-      "type": "deco"
-    },
-    {
-      "tx": 4,
-      "ty": 4,
-      "key": "small_house",
-      "frame": 27,
-      "type": "deco"
-    },
-    {
-      "tx": 3,
-      "ty": 4,
-      "key": "small_house",
-      "frame": 26,
-      "type": "deco"
-    },
-    {
-      "tx": 1,
-      "ty": 5,
-      "key": "small_house",
-      "frame": 36,
-      "type": "deco"
-    },
-    {
-      "tx": 2,
-      "ty": 5,
-      "key": "small_house",
-      "frame": 37,
-      "type": "deco"
-    },
-    {
-      "tx": 3,
-      "ty": 5,
-      "key": "small_house",
-      "frame": 38,
-      "type": "deco"
-    },
-    {
-      "tx": 4,
-      "ty": 5,
-      "key": "small_house",
-      "frame": 39,
-      "type": "deco"
-    },
-    {
-      "tx": 4,
-      "ty": 3,
-      "key": "small_house",
-      "frame": 15,
-      "type": "deco"
-    },
-    {
-      "tx": 4,
-      "ty": 2,
-      "key": "small_house",
-      "frame": 3,
-      "type": "deco"
-    },
-    {
       "tx": 7,
       "ty": 7,
       "key": "signs",
@@ -1312,30 +1200,9 @@
     },
     {
       "tx": 10,
-      "ty": 2,
-      "key": "cow",
-      "frame": 19,
-      "type": "deco"
-    },
-    {
-      "tx": 9,
-      "ty": 2,
-      "key": "cow",
-      "frame": 18,
-      "type": "deco"
-    },
-    {
-      "tx": 10,
       "ty": 1,
       "key": "cow",
       "frame": 3,
-      "type": "deco"
-    },
-    {
-      "tx": 9,
-      "ty": 1,
-      "key": "cow",
-      "frame": 2,
       "type": "deco"
     },
     {
@@ -1357,20 +1224,6 @@
       "ty": 11,
       "key": "paths",
       "frame": 8,
-      "type": "deco"
-    },
-    {
-      "tx": 10,
-      "ty": 3,
-      "key": "cow_baby_brown",
-      "frame": 19,
-      "type": "deco"
-    },
-    {
-      "tx": 9,
-      "ty": 3,
-      "key": "cow_baby_brown",
-      "frame": 18,
       "type": "deco"
     },
     {
@@ -1519,6 +1372,27 @@
       "key": "premium_char_npc",
       "frame": 115,
       "type": "top"
+    },
+    {
+      "tx": 2,
+      "ty": 5,
+      "key": "small_house",
+      "frame": 0,
+      "type": "deco"
+    },
+    {
+      "tx": 8,
+      "ty": 3,
+      "key": "cow",
+      "frame": 0,
+      "type": "deco"
+    },
+    {
+      "tx": 10,
+      "ty": 3,
+      "key": "cow_baby_light",
+      "frame": 0,
+      "type": "deco"
     }
   ],
   "weather": {
