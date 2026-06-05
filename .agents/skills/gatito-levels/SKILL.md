@@ -1,284 +1,247 @@
+---
+name: gatito-levels
+description: Diseñador de niveles Gatito-Code. Crea niveles nuevos jugables (path + pickups + decoración + clima) o enriquece niveles existentes, mediante preguntas, y los deja registrados como built-in.
+---
+
 # Skill: Diseñador de Niveles Gatito-Code
 
-## Propósito
-Esta skill guía a cualquier LLM en la creación de nuevos mapas/niveles para el juego **Gatito-Code**, un juego de puzles 2D por turnos basado en Phaser 3 que enseña conceptos de programación y lógica algorítmica.
+Guía para crear o enriquecer niveles del juego **Gatito-Code** (puzles 2D por turnos en
+Phaser 3 que enseñan lógica de programación). El jugador encola movimientos y los ejecuta
+para recorrer un **corredor** (`path`), juntar pickups y llegar a la meta.
+
+Esta skill **hace preguntas primero** y recién después genera. Usa dos scripts auxiliares
+de esta carpeta:
+- `build-level.js` — compila un spec semántico en el JSON final (con GIDs reales y la capa `path`).
+- `validate-level.js` — verifica que el nivel sea **realmente jugable** (corredor conectado,
+  pickups sobre el path, y factibilidad según el presupuesto de movimientos).
 
 ---
 
-## Regla de Interacción Inicial (OBLIGATORIA)
+## 0. Apertura OBLIGATORIA (primera pregunta, siempre)
 
-Cuando el usuario te pida crear un mapa o un nivel, **NO** generes código ni archivos inmediatamente. Tu primera acción DEBE ser hacerle estas **7 preguntas obligatorias** y esperar sus respuestas:
+Antes que nada, preguntá:
 
-1. **Dificultad:** *"¿Qué dificultad deseas para este nivel: fácil, normal, difícil o pesadilla?"*
-2. **Concepto Pedagógico:** *"¿Qué concepto de lógica o algoritmos quieres que el jugador practique aquí? (Ej: secuencias simples, esquivar obstáculos, encontrar la ruta más corta, evitar callejones sin salida, planificar con límite de movimientos)."*
-3. **Temática y Assets:** *"¿Qué escenario visual te imaginas? Te muestro las opciones disponibles..."* (Ver catálogo más abajo).
-4. **Estado Anímico / Narrativa Visual:** *"¿Qué emoción o sensación debe transmitir el nivel? (Ej: alegre, triste, melancólico, misterioso, nostálgico, aterrador, tranquilo, caótico, esperanzador)."*
-5. **Clima / Atmósfera Física:** *"Describe el clima ambiental. Puedes combinar efectos: lluvia intensa de noche, nieve ligera al amanecer, hojas cayendo en día despejado, polen flotante, o simplemente despejado."*
-6. **Narrativa de Juego:** *"¿Quieres incluir un mensaje de bienvenida (diálogo al iniciar el nivel) o un texto de misión específico en la pantalla?"*
-7. **Nombre del Mapa:** *"¿Cómo quieres llamar a este nivel? (Ej: bosque_encantado, granja_abandonada, pueblo_lobos). Este nombre se usará para el archivo, el menú y el código fuente."*
+> **«¿Querés *crear un nivel desde cero* o *actualizar/enriquecer un nivel existente*?»**
 
----
+- Si **enriquecer** → pedí enseguida **qué nivel** (key: `nivel0`, `gym`, `main`, `nivel3`, …)
+  y seguí el **Modo B**.
+- Si **crear** → seguí el **Modo A**.
 
-## Catálogo de Assets Disponibles
-
-### Terrenos Transitables (Autotile)
-Estos son los suelos por donde el jugador camina. Se pintan en la capa `floor`.
-- `grass` — Pasto verde básico (GID 1-99)
-- `dirt` — Tierra arada/marrón (GID 200-299)
-- `water` — Agua (GID 400-499)
-
-### Obstáculos / Muros (Autotile)
-Se pintan en la capa `walls`. Todo GID distinto de 0 bloquea el paso.
-- `hills` — Colinas y elevaciones verdes (GID 300-399)
-- `fences` — Cercas de madera (GID 100-199)
-- `Wooden House` — Casa de madera completa (usar con cuidado, ocupa mucho espacio)
-- `Wooden_House_Roof_Tilset` — Techos modulares
-- `Wooden_House_Walls_Tilset` — Paredes modulares
-- `Doors` — Puertas de madera
-- `ground tiles` — Suelos de piedra o madera para interiores
-- `Building parts` — Partes misceláneas de construcción
-
-### Objetos (Pickups y Decoración)
-Se colocan en el array `objects` del JSON. `type` puede ser `"pickup"` (coleccionable) o `"deco"` (decoración).
-- `plants` — Cultivos y plantas pequeñas (frames 0-11)
-- `grass_props` — Elementos naturales: tocones, arbustos, troncos, hongos, flores (frames 0-44)
-- `furniture` — Mobiliario: camas, mesas, sillas, estantes (frames 0-53)
-- `tools` — Herramientas de granja: picos, hachas, regaderas (frames 0-5)
-- `Trees, stumps and bushes` — Árboles enteros, tocones, arbustos grandes
-- `Farming Plants` — Cultivos en diferentes estados de crecimiento
-- `Mushrooms, Flowers, Stones` — Hongos, flores y rocas
-- `Boats` — Botes pequeños
-- `Chest` — Cofres de tesoro
-- `Egg item` — Huevo como objeto coleccionable
-- `Piknik basket` / `Piknik blanket` — Cesta y manta de picnic
-- `signs` / `signs_sides` — Letreros de madera
-- `Water Objects` — Objetos acuáticos
-- `Water well` — Pozo de agua
-- `Wood Bridge` — Puente de madera
-- `work station` — Mesa de trabajo/crafteo
-
-### Animales (Decorativos / Ambientales)
-- `Chicken`, `Chicken_Baby`, `Chicken_Egg`
-- `Cow`, `Cow_Baby`
-
-### Personajes (Solo referencia, no para objetos del mapa)
-- `character_base` — El protagonista controlado por el jugador
+No generes código ni archivos hasta completar el flujo de preguntas.
 
 ---
 
-## Reglas de Diseño Pedagógico y Físico
+## 1. Flujo de preguntas
 
-### Regla de Oro: Máximo 7 Movimientos
-El jugador solo puede encolar **7 movimientos** por ejecución del programa. Por lo tanto:
+Hacé estas preguntas (podés agruparlas con `AskUserQuestion`):
 
-- La **distancia transitable real** (pathfinding esquivando muros) desde el `spawn` hasta cada objetivo `pickup` debe ser **≤ 7 pasos**.
-- Alternativamente, la distancia entre el `spawn` y un pickup, o entre cualquier par de pickups, debe permitir una secuencia de recolección donde cada salto sea ≤ 7 pasos.
-- **NUNCA** diseñes un pickup que requiera 8 o más pasos seguidos sin un punto de descanso intermedio.
-
-### Diseño por Dificultad
-
-| Dificultad | Propósito Educativo | Diseño Espacial |
-|------------|---------------------|-----------------|
-| **Fácil** | Secuencias básicas, confianza | Caminos casi rectos. 1-2 obstáculos decorativos. Distancia spawn→pickup de 2-4 pasos. Sin trampas. |
-| **Normal** | Caminos en L, zig-zag, planificación simple | Muros que obligan a rodear. 3-4 pickups. Distancias de 4-6 pasos. Primera introducción de callejones sin salida visibles. |
-| **Difícil** | Optimización de rutas, reconocimiento de patrones | Pasillos estrechos, callejones sin salida que parecen caminos válidos. Distancias de 6-7 pasos. Caminos engañosos visibles. |
-| **Pesadilla** | Eficiencia algorítmica extrema, cero error | Exactamente 7 pasos entre zonas seguras. Caminos alternativos tentadores pero ineficientes (requieren 8+ pasos o son dead-ends). Castiga severamente no planificar. |
-
-### Técnica de "Caminos Engañosos" (Decoy Paths)
-Para niveles Normal, Difícil y Pesadilla, **SIEMPRE** incluye al menos una ruta alternativa que:
-- Sea visualmente tentadora (más corta en línea recta).
-- Sea un **callejón sin salida** o requiera más de 7 pasos para salir.
-- Force al jugador a contar mentalmente antes de presionar "Run".
-
-### Narrativa Visual por Emoción (Camino Simple - Sin tintes dinámicos)
-El motor NO soporta cambiar colores de los tiles dinámicamente. La emoción se transmite **exclusivamente mediante la combinación de assets** y el clima.
-
-| Emoción | Clima Sugerido | Assets Dominantes |
-|---------|---------------|-------------------|
-| **Alegre / Feliz** | Despejado, polen ligero (`pollen: 0.3`) | `grass`, flores (`grass_props`), animales, puentes, picnic |
-| **Triste / Melancólico** | Lluvia ligera (`rain: 0.4`), noche tenue (`night: 0.3`) | `dirt` predominante, tocones cortados, mobiliario abandonado, pozo seco, cercas rotas (`fences`) |
-| **Misterioso** | Noche (`night: 0.7`), niebla implícita por oscuridad | Casa de madera (`Wooden House`), `fences`, carteles (`signs`), cofres (`Chest`), puentes (`Wood Bridge`) |
-| **Aterrador** | Noche intensa (`night: 0.9`), lluvia torrencial (`rain: 0.9`) | Todo lo anterior + ausencia total de animales, muchos `hills` (montañas) cerrando el espacio |
-| **Tranquilo / Nostálgico** | Despejado de noche (`night: 0.5`), nieve ligera (`snow: 0.3`) | `grass` con árboles (`Trees`), animales pasivos, pozo, caminos de `dirt` |
-| **Caótico** | Tormenta de hojas (`leaves: 0.8`) + lluvia (`rain: 0.6`) | Objetos dispersos sin orden, múltiples tipos de terreno mezclados, puentes rotos, obstáculos inesperados |
-
-### Efectos Climáticos (Nativos del Motor)
-El motor soporta múltiples efectos simultáneos. En el JSON del nivel se incluye:
-
-```json
-"weather": {
-  "rain": 0.0,
-  "snow": 0.0,
-  "pollen": 0.0,
-  "leaves": 0.0,
-  "night": 0.0
-}
-```
-
-- **Valores:** `0.0` (desactivado) a `1.0` (máxima intensidad).
-- **Combinaciones:** Ilimitadas. Ejemplo: `"noche lluviosa"` = `{ "night": 0.6, "rain": 0.8 }`.
-- **Tipos:** `rain` (lluvia), `snow` (nieve), `pollen` (polen flotante), `leaves` (hojas cayendo), `night` (overlay oscuro).
+1. **Modo** (crear / enriquecer) y, si enriquece, **qué nivel**.
+2. **Herramientas:** «¿El nivel usa **Función (ƒ)**? ¿**loop/for**? ¿**if**?»
+   → Luego **VERIFICÁ EN EL CÓDIGO** cuáles existen de verdad (ver §2). Diseñá solo con las reales.
+3. **Dificultad** (fácil / normal / difícil / pesadilla) **y qué incluye** (nº de pickups,
+   nº de pasos objetivo) → usá la tabla de §3.
+4. **Temática/assets**, **emoción**, **clima**, **narrativa** (mensaje de bienvenida y/o misión),
+   y **nombre** del nivel (kebab/lowercase; se usa para archivo, key y escena).
+5. **Path:** generá caminos candidatos y dejá que el usuario elija uno (ver §4).
 
 ---
 
-## Flujo de Integración al Código Fuente
+## 2. Herramientas reales (VERIFICAR antes de diseñar)
 
-Cuando generes un nuevo nivel, la IA debe realizar estos pasos exactos:
+El motor **hoy** solo ejecuta:
+- **Movimiento** (arriba/abajo/izq/der) — panel principal, **máximo 5 slots** (`public/src/ui/state.js`, `MAX=5`).
+- **Salto** (`jump`) — cruza un hueco.
+- **Función `func1`** (panel **F1**) — una sub-secuencia de **hasta 3 pasos** reutilizable
+  (`public/src/ui/queue.js`).
 
-### Paso 1: Generar el archivo JSON del nivel
-Guardar en: `public/levels/[nombre].json`
+**`loop`/`for` e `if` NO existen todavía.** Si el usuario los pide, avisá que aún no están
+implementados y diseñá con lo disponible (no generes un nivel injugable).
 
-### Paso 2: Registrar el nivel en el cargador
-Editar `public/src/level/TileLevel.js`:
-- Añadir `"[nombre]"` al array `LEVELS` (Ej: `export const LEVELS = ['gym', 'main', 'bosque_encantado'];`)
-
-### Paso 3: Agregar botón al menú
-Editar `public/src/scenes/MenuScene.js` en la sección `screen === 'levels'`:
-- Añadir: `this.makeButton(bx, y, 'Nombre Visible', () => this.scene.start('Custom', { levelKey: '[nombre]' }));`
-
-### Paso 4 (Opcional - Recomendado para narrativa personalizada): Crear una clase de Escena
-Si el usuario pidió `missionText` o `welcomeMessage` personalizados, crear `public/src/scenes/[NombreCamelCase]Scene.js`:
-
-```javascript
-import { TileLevelScene } from './TileLevelScene.js';
-
-export class [NombreCamelCase]Scene extends TileLevelScene {
-  constructor() {
-    super('[NombreCamelCase]');
-    this.levelKey = '[nombre]';
-    this.missionText = '[Texto de misión personalizado]';
-  }
-
-  init(data) {
-    super.init(data);
-    this.welcomeMessage = '[Mensaje de bienvenida personalizado]';
-    if (!data?.returnScreen) this.returnScreen = 'levels';
-  }
-}
-```
-
-### Paso 5 (Si se creó Escena personalizada): Registrar en el motor
-Editar `public/src/main.js`:
-- Importar la nueva escena: `import { [NombreCamelCase]Scene } from './scenes/[NombreCamelCase]Scene.js';`
-- Agregarla al array `scene: [ ..., [NombreCamelCase]Scene ]`
-- **Y modificar el botón del menú** para que llame a `this.scene.start('[NombreCamelCase]')` en lugar de `'Custom'`.
+Cómo verificar qué herramientas tiene un nivel:
+- La Función se habilita/deshabilita **por escena**, de forma imperativa. Buscá en
+  `public/src/engine/levels/<Nivel>Scene.js` un patrón tipo `_disableFunc1()`
+  (ej. `Nivel0Scene` la **grisea** → ese nivel NO usa Función). Si no la deshabilita, está disponible.
+- Confirmá los botones en `public/index.html` (`[data-dir="func1"]`, `[data-target="func1"]`).
+- Si en el futuro aparecen `loop`/`if`, se detectarán igual (nuevos botones/colas); hasta entonces, no asumas que existen.
 
 ---
 
-## Formato Semántico de Entrada (Para el Compilador)
+## 3. Dificultad ↔ presupuesto de movimientos
 
-La IA NO debe escribir a mano arrays de 192 GIDs. En su lugar, debe generar un archivo semántico (JSON o YAML) y ejecutar el script `build-level.js`.
+La dificultad sale de **pasos del path + cantidad de pickups**, acotada por el **presupuesto**
+de un único programa (se juntan TODOS los pickups y se llega a la meta en una sola ejecución):
 
-### Estructura del esquema semántico:
+- **Sin Función:** máximo **5 pasos** (5 slots).
+- **Con Función:** `pasos = (5 − k) + k·L`, con `k` slots usados como `ƒ` y `L = |bloque ƒ| ≤ 3`.
+  → hasta **15 pasos**, pero solo si el path tiene un **motivo repetido** (la misma sub-secuencia
+  se reutiliza). Ej.: ƒ=[right,right,right] usado 2 veces = 6 pasos en 2 slots.
+- **Salto:** permite cruzar un hueco de 1 tile.
 
-```json
+| Dificultad | Pasos del path | Pickups | Herramienta típica |
+|---|---|---|---|
+| **Fácil** | 2–4 (casi recto) | 1 | solo movimiento |
+| **Normal** | 5–6 (L / pocos giros) | 1–2 | movimiento, o ƒ usada 1 vez |
+| **Difícil** | 7–9 (con motivo repetido) | 2–3 | **ƒ requerida** (2 usos) |
+| **Pesadilla** | 10–15 (motivo muy repetido, presupuesto justo) | 3+ | **ƒ muy reutilizada** |
+
+Regla de oro: **el `validate-level.js` debe dar factible** con las herramientas declaradas.
+A más camino y más pickups, más difícil planear el programa dentro del presupuesto.
+
+---
+
+## 4. Generar el path (caminos candidatos a elección)
+
+### Modo A (nuevo)
+1. Escribí un *cand-spec* y pedí candidatos:
+   ```bash
+   node .claude/skills/gatito-levels/build-level.js candidates cand.json
+   ```
+   `cand.json`: `{ "cols":16, "rows":12, "spawn":{"tx":1,"ty":6}, "steps":6, "pickups":2, "tools":["func"] }`
+2. El script imprime **2–4 corredores** (recto, en L, escalera, motivo-repetido) con **preview ASCII**
+   (`S`=spawn, `·`=corredor, `*`=pickup, `G`=meta) y su JSON (`tiles`, `dirs`, `pickups`, `goal`).
+3. Mostrá los previews al usuario con `AskUserQuestion` (usando el campo `preview`) y que **elija uno**.
+
+### Modo B (enriquecer)
+1. **Leé el path actual** del nivel (su `public/levels/<key>.json`, o adelantá al usuario que su
+   localStorage `level:<key>` puede pisarlo) y **mostralo** (preview ASCII del corredor).
+2. Preguntá: **«¿Mantener el path tal cual, modificarlo, o generar una variación?»**
+   - **Mantener** → no toques el corredor; solo agregá decoración/objetos.
+   - **Modificar/variación** → pasá el corredor actual como `basePath` al generador:
+     `{ "basePath":[{"x":1,"y":6}, …], "pickups":2 }` → produce variaciones (original, extendido,
+     acortado, con recodo). El usuario elige una.
+3. Al **cambiar** el path: **re-ubicá los pickups sobre el nuevo corredor** y **re-validá**.
+
+---
+
+## 5. Spec para `build-level.js build`
+
+Una vez elegido el path, escribí el spec y compilá:
+
+```jsonc
 {
-  "name": "bosque_encantado",
-  "cols": 16,
-  "rows": 12,
-  "weather": { "rain": 0, "snow": 0, "pollen": 0, "leaves": 0, "night": 0.6 },
-  "spawn": { "tx": 8, "ty": 6 },
-  "terrain": [
-    { "type": "grass", "rect": [0, 0, 16, 12] },
-    { "type": "dirt", "rect": [4, 4, 8, 4] }
-  ],
-  "walls": [
-    { "type": "fences", "rect": [2, 2, 12, 8], "border": true }
-  ],
+  "name": "bosque_encantado",          // archivo/key del nivel
+  "cols": 16, "rows": 12,
+  "tools": ["func"],                    // informativo: lo pasás también al validador
+  "spawn": { "tx": 1, "ty": 6 },        // en un EXTREMO del corredor
+  "floor": { "base": "grass",           // terreno base + parches opcionales (autotile)
+             "patches": [{ "type": "dirt", "rect": [10,2,4,3] }] },
+  "walls":  [{ "type": "hills", "rect": [0,0,16,12], "border": true }],  // opcional
+  "path":   { "tiles": [{ "x":1,"y":6 }, … ] },   // el corredor elegido (o "waypoints")
+  "pathGid": 212,                       // opcional; tile del sendero (≠0). 212 = tierra
   "objects": [
-    { "tx": 10, "ty": 5, "key": "grass_props", "frame": 20, "type": "pickup" },
-    { "tx": 5, "ty": 3, "key": "Trees, stumps and bushes", "frame": 0, "type": "deco" }
-  ]
+    { "tx":4, "ty":6, "key":"grass_props", "frame":19, "type":"pickup_with_animation" },
+    { "tx":12,"ty":3, "key":"trees",       "frame":0,  "type":"deco" }
+  ],
+  "weather": { "pollen": 0.3 }
 }
 ```
 
-### Notas sobre el formato semántico:
-- `terrain`: Lista de rectángulos `[x, y, width, height]`. El compilador calculará automáticamente los bordes (autotile).
-- `walls`: Lista de rectángulos. Si tiene `"border": true`, solo dibuja el contorno. Si no, rellena todo.
-- `objects`: Cada objeto tiene `tx`, `ty` (coordenadas de tile), `key` (nombre del asset), `frame` (índice del sprite), y `type` (`"pickup"` o `"deco"`).
-
-### Ejecución del compilador:
 ```bash
-node .agents/skills/gatito-levels/build-level.js input.json public/levels/
+node .claude/skills/gatito-levels/build-level.js build spec.json public/levels/
+node .claude/skills/gatito-levels/validate-level.js public/levels/<name>.json --tools func
 ```
+
+**Si el validador FALLA, corregí el spec y reconstruí.** No presentes un nivel que no pase.
 
 ---
 
-## Validación del Nivel
+## 6. Catálogo (assets reales)
 
-Después de generar el JSON, la IA DEBE ejecutar el validador:
+> Fuente de verdad: `public/src/engine/level/TileRegistry.js` (`TILESETS`, `TERRAINS`, `OBJECTS`).
+> Los **rangos de GID son INMUTABLES** (CLAUDE.md). No inventes GIDs.
 
-```bash
-node .agents/skills/gatito-levels/validate-level.js public/levels/[nombre].json
-```
+### Terrenos transitables (capa `floor`, autotile) — usar como `base`/`patches.type`
+`grass` (pasto), `dirt` / `dirt_v2` (tierra), `grass_hills` (pasto colinas), `dgrass_tiles`
+(pasto oscuro), `bush` (arbustos), `water` (agua).
 
-El validador verificará:
-- ✅ Estructura del JSON correcta.
-- ✅ GIDs dentro de rangos válidos.
-- ✅ Spawn dentro de límites y sobre suelo transitable.
-- ✅ **Pathfinding BFS:** Todos los pickups están conectados al spawn mediante saltos de máximo 7 pasos cada uno.
-- ✅ Intensidades del clima entre 0.0 y 1.0.
+### Muros/obstáculos (capa `walls`, autotile) — `walls[].type`
+`hills` (colinas verdes), `fences` (cercas). Todo GID ≠ 0 bloquea. *Con un `path` presente, el
+jugador ya queda confinado al corredor; los muros son sobre todo visuales/encierre.*
 
-**Si el validador falla, la IA debe corregir el diseño y volver a ejecutar el compilador y el validador antes de presentar el resultado al usuario.**
+### Objetos (`objects[]`): `pickup` / `pickup_with_animation` (coleccionables) y `deco` / `top` (decoración)
+Cada objeto es **un solo tile de 16×16**: `{ tx, ty, key, frame, type }`, donde `frame` es el índice
+(0..cols·rows−1) del spritesheet.
 
----
+> ⚠️ **CRÍTICO — los objetos multi-tile se ven CORTADOS.** Muchas hojas mezclan props de 1 tile con
+> objetos grandes (árboles, troncos, rocas grandes, girasol, casas) que ocupan 2×2 o más. Si ponés un
+> `frame` suelto de uno de esos, se renderiza **solo un pedacito** (un árbol cortado, media planta). El
+> motor **no** compone multi-tile en un objeto. **Usá solo frames que sean un dibujo completo en su celda.**
 
-## Ejemplo Completo (Few-Shot)
+**Frames de 1 tile SEGUROS (verificados, ideales para decoración):**
+- `plants` (Basic Plants, 6×2 = 12 frames): **0–11**, todas plantitas/brotes pequeños. 100% seguros.
+- `mushrooms` (Mushrooms/Flowers/Stones, 12×5): **fila 0 = frames 0–11** (hongos). Las filas siguientes
+  tienen rocas grandes y un girasol multi-tile → evitarlas salvo flores chicas ya verificadas.
+- `grass_props` (9×5): la **fila 0 (frames 0–8) son ÁRBOLES multi-tile → NO usar sueltos.** Props de
+  1 tile verificados: `5` (remolacha), `28` y `36` (arbustos/piedras). Pickups animados conocidos: `19`, `31`.
+- `free_chicken` (4×2): **frame 0** (gallina) — 1 tile, decorativo.
 
-### Input del usuario:
-- Dificultad: Normal
-- Concepto: Esquivar obstáculos y planificar rutas
-- Temática: Granja antigua
-- Emoción: Melancólica
-- Clima: Lluvia ligera de noche
-- Narrativa: "Misión: Encuentra las herramientas perdidas de tu abuelo."
-- Nombre: granja_abandonada
+**Cómo verificar un frame nuevo:** abrí el PNG (`Read` de la imagen en `public/assets/...`), contá la
+grilla `cols×rows` del registry y elegí solo celdas con un dibujo **completo**. Árboles/casas/rocas
+grandes: **no hay soporte multi-tile → no los uses como deco.**
 
-### Esquema Semántico generado por la IA:
+Otras keys (usar con la verificación de arriba): `winter_sprites`, `wood_shrooms` (props chicos);
+`free_chicken`/`chicken_baby` (animales 1 tile); `egg_items`,`fruit_berries_items`,`tools_items` (items chicos).
 
-```json
-{
-  "name": "granja_abandonada",
-  "cols": 16,
-  "rows": 12,
-  "weather": { "rain": 0.4, "snow": 0, "pollen": 0, "leaves": 0.2, "night": 0.5 },
-  "spawn": { "tx": 2, "ty": 2 },
-  "terrain": [
-    { "type": "dirt", "rect": [0, 0, 16, 12] },
-    { "type": "grass", "rect": [1, 1, 14, 10] }
-  ],
-  "walls": [
-    { "type": "fences", "rect": [1, 1, 14, 10], "border": true },
-    { "type": "fences", "rect": [6, 4, 4, 4] }
-  ],
-  "objects": [
-    { "tx": 13, "ty": 9, "key": "tools", "frame": 0, "type": "pickup" },
-    { "tx": 4, "ty": 8, "key": "tools", "frame": 2, "type": "pickup" },
-    { "tx": 10, "ty": 3, "key": "furniture", "frame": 6, "type": "deco" },
-    { "tx": 5, "ty": 5, "key": "Chest", "frame": 0, "type": "deco" }
-  ]
-}
-```
+**Pickups SIEMPRE sobre el corredor** (un tile del `path`). La decoración va donde quieras (es visual).
 
-### Ejecución:
-```bash
-node .agents/skills/gatito-levels/build-level.js granja_abandonada.json public/levels/
-node .agents/skills/gatito-levels/validate-level.js public/levels/granja_abandonada.json
-```
+### Clima (`weather`, 0.0–1.0) — combinables
+`rain`, `snow`, `pollen`, `leaves`, `night`, `fog`, `dust`, `wind`, `storm`.
 
-### Integración al código:
-1. Añadir `"granja_abandonada"` a `LEVELS` en `TileLevel.js`.
-2. Añadir botón en `MenuScene.js`.
-3. Crear `GranjaAbandonadaScene.js` con `missionText` personalizado.
-4. Registrar escena en `main.js`.
+| Emoción | Clima sugerido | Assets dominantes |
+|---|---|---|
+| Alegre | `pollen:0.3` | flores/`grass_props`, animales, puentes |
+| Triste/Melancólico | `rain:0.4, night:0.3` | `dirt`, tocones, cercas, pozo |
+| Misterioso | `night:0.7, fog:0.3` | casas, `signs`, `chest`, puentes |
+| Aterrador | `night:0.9, rain:0.8` | sin animales, muchos `hills` cerrando |
+| Tranquilo | `night:0.5, snow:0.3` | `grass`, árboles, animales pasivos |
+
+**Caminos engañosos (decoy):** para difícil/pesadilla, agregá decoración que sugiera un atajo
+falso (la decoración no es transitable: el jugador solo camina el `path`), forzando a contar pasos.
 
 ---
 
-## Notas Importantes para el LLM
+## 7. Integración built-in (dejar el nivel jugable en el menú)
 
-- **NUNCA** inventes GIDs que no existan en los rangos definidos (grass: 1-99, fences: 100-199, dirt: 200-299, hills: 300-399, water: 400-499).
-- **NUNCA** pongas pickups dentro de muros (coordenadas donde la capa `walls` tenga un GID != 0).
-- **NUNCA** pongas el spawn sobre un muro.
-- **SIEMPRE** ejecuta `validate-level.js` antes de dar por terminado un nivel.
-- Si un asset que quiere usar el usuario no está en el catálogo, explica que no está registrado en el motor y sugiere una alternativa del catálogo.
-- Todos los comentarios de código y nombres de archivos deben seguir el estilo del proyecto (principalmente español para la experiencia del usuario).
+Para un nivel **nuevo** (en modo enriquecer ya está registrado), hacé los 5 pasos:
+
+1. **JSON:** `build-level.js build … public/levels/` → `public/levels/<key>.json`.
+2. **Preload:** agregá `'<key>'` al array `LEVELS` en
+   `public/src/engine/level/TileRegistry.js` (BootScene precarga `level_<key>`).
+3. **Registro/menú:** agregá `{ key:'<key>', name:'<Nombre>', scene:'<SceneKey>' }` a
+   `BUILTIN_LEVELS` en `public/src/services/Storage.js` (el menú lo lista solo vía `getAllLevels()`).
+4. **Escena:** creá `public/src/engine/levels/<Nombre>Scene.js` extendiendo `TileLevelScene`:
+   ```js
+   import { TileLevelScene } from '../scenes/TileLevelScene.js';
+   export class <Nombre>Scene extends TileLevelScene {
+     constructor() {
+       super('<SceneKey>');
+       this.levelKey = '<key>';
+       this.missionText  = '<misión opcional>';
+       this.welcomeMessage = '<bienvenida opcional o null>';
+     }
+   }
+   ```
+   Si el nivel **NO** usa Función, copiá el patrón `_disableFunc1()` de `Nivel0Scene` para grisearla.
+5. **Registrar escena:** en `public/src/main.js`, importá la clase y agregala al array `scene:[…]`.
+
+---
+
+## 8. Verificación final
+
+1. `node validate-level.js public/levels/<key>.json --tools <herramientas>` → **PASA**.
+2. `node --check` sobre la Scene nueva y los archivos editados.
+3. `npx serve public` → el nivel aparece en **Levels**, se juega, el `path` confina al jugador,
+   se juntan los pickups y se gana al llegar a la meta dentro del presupuesto.
+
+> **Ojo localStorage:** `readLevelJson` (Storage.js) prioriza `level:<key>` de localStorage sobre
+> el disco. Si ya editaste ese nivel en el editor, limpiá ese override para ver el JSON nuevo:
+> en la consola del navegador `localStorage.removeItem('level:<key>')`.
+
+---
+
+## Errores comunes (evitar)
+- Poner un **pickup fuera del corredor** → inalcanzable. Siempre sobre un tile del `path`.
+- Diseñar un path **más largo que el presupuesto** de las herramientas → el validador lo marca NO factible.
+- Inventar GIDs o keys de objetos que no están en el registry.
+- Olvidar el paso 2 (`LEVELS`): sin precarga, el nivel carga vacío.
+- Asumir `loop`/`if`: no existen aún.

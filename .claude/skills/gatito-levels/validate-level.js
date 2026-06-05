@@ -1,318 +1,235 @@
 #!/usr/bin/env node
 /**
- * Validador de Niveles Gatito-Code
+ * Validador de Niveles Gatito-Code  (CommonJS, sin dependencias)
  *
- * Audita un archivo JSON de nivel generado para Phaser 3 y verifica:
- *   - Estructura del JSON
- *   - GIDs dentro de rangos validos
- *   - Spawn transitable
- *   - Pathfinding BFS: conectividad de pickups respecto al spawn
- *     con saltos maximos de 7 pasos entre nodos.
- *   - Intensidades climaticas validas
+ * Replica la lógica del motor (TileLevelLoader + PathAnimator + TileLevelScene)
+ * para verificar que un nivel sea REALMENTE jugable:
+ *   - spawn dentro de límites,
+ *   - corredor `path` conectado desde el spawn y con una meta (extremo lejano),
+ *   - cada pickup sobre el corredor,
+ *   - clima en rango 0..1,
+ *   - FACTIBILIDAD por presupuesto de herramientas: ¿existe un programa de ≤5
+ *     slots (con un bloque `func1` de ≤3 pasos reutilizable) que recorra el path?
  *
  * Uso:
- *   node validate-level.js <level.json>
+ *   node validate-level.js <level.json> [--tools func,jump]
  *
- * Ejemplo:
- *   node validate-level.js public/levels/bosque_encantado.json
+ * Sale con código 0 si PASA, 1 si FALLA.
  */
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// ── Constantes ───────────────────────────────────────────────────────────────
+const MAX_MAIN = 5;   // slots del panel principal (ui/state.js)
+const MAX_FUNC = 3;   // pasos máximos de la Función (queueFunc1)
 
-const GID_RANGES = [
-  { name: 'grass', min: 1, max: 99 },
-  { name: 'fences', min: 100, max: 199 },
-  { name: 'dirt', min: 200, max: 299 },
-  { name: 'hills', min: 300, max: 399 },
-  { name: 'water', min: 400, max: 499 },
+// Keys cuyos sprites son multi-tile: un `frame` suelto se ve CORTADO como deco.
+const MULTITILE_KEYS = new Set([
+  'trees', 'trees_v2', 'tree_full', 'tree_apple', 'tree_orange', 'tree_peach', 'tree_pear',
+  'wooden_house', 'wooden_roof', 'wooden_walls', 'christmas_tree', 'barn_structures',
+  'chicken_houses', 'small_house', 'small_huts', 'grey_brick_houses', 'birch_biom',
+  'cherry_biom', 'pine_biom',
+]);
+
+// ── expandLayer (espejo de TileRegistry.expandLayer) ──
+function expandLayer(layer, cols, rows) {
+  if (Array.isArray(layer)) {
+    const arr = new Array(cols * rows).fill(0);
+    const n = Math.min(layer.length, arr.length);
+    for (let i = 0; i < n; i++) arr[i] = layer[i] || 0;
+    return arr;
+  }
+  const out = new Array(cols * rows).fill((layer && layer.fill) || 0);
+  for (const r of ((layer && layer.rects) || [])) {
+    for (let y = r.y; y < r.y + r.h; y++)
+      for (let x = r.x; x < r.x + r.w; x++)
+        if (x >= 0 && y >= 0 && x < cols && y < rows) out[y * cols + x] = r.gid;
+  }
+  return out;
+}
+
+const DV = [
+  { dx: 0, dy: -1, dir: 'up' }, { dx: 0, dy: 1, dir: 'down' },
+  { dx: -1, dy: 0, dir: 'left' }, { dx: 1, dy: 0, dir: 'right' },
 ];
 
-const MAX_STEPS = 7;
-const WEATHER_TYPES = ['rain', 'snow', 'pollen', 'leaves', 'night'];
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function isValidGid(gid) {
-  if (gid === 0) return true;
-  return GID_RANGES.some(r => gid >= r.min && gid <= r.max);
+// Recorre el corredor desde el spawn (espejo de PathAnimator.pathDirections).
+function pathWalk(pathFlat, cols, rows, spawn) {
+  const isPath = (x, y) => x >= 0 && y >= 0 && x < cols && y < rows && pathFlat[y * cols + x] !== 0;
+  let x = spawn.tx, y = spawn.ty;
+  const visited = new Set([`${x},${y}`]);
+  const dirs = [], tiles = [{ x, y }];
+  while (true) {
+    const n = DV.find(d => isPath(x + d.dx, y + d.dy) && !visited.has(`${x + d.dx},${y + d.dy}`));
+    if (!n) break;
+    x += n.dx; y += n.dy;
+    visited.add(`${x},${y}`);
+    dirs.push(n.dir);
+    tiles.push({ x, y });
+  }
+  return { dirs, tiles };
 }
 
-function gidRangeName(gid) {
-  if (gid === 0) return 'empty';
-  const r = GID_RANGES.find(r => gid >= r.min && gid <= r.max);
-  return r ? r.name : 'INVALID';
-}
-
-function flatIndex(tx, ty, cols) {
-  return ty * cols + tx;
-}
-
-function inBounds(tx, ty, cols, rows) {
-  return tx >= 0 && ty >= 0 && tx < cols && ty < rows;
+// Extremo lejano del path desde el spawn (espejo de _pathGoal).
+function pathGoal(pathFlat, cols, rows, spawn) {
+  const isPath = (x, y) => x >= 0 && y >= 0 && x < cols && y < rows && pathFlat[y * cols + x] !== 0;
+  const endpoints = [];
+  for (let ty = 0; ty < rows; ty++)
+    for (let tx = 0; tx < cols; tx++) {
+      if (!isPath(tx, ty)) continue;
+      const n = DV.filter(d => isPath(tx + d.dx, ty + d.dy)).length;
+      if (n === 1) endpoints.push({ tx, ty });
+    }
+  if (!endpoints.length) return null;
+  return endpoints.sort((a, b) =>
+    (Math.abs(b.tx - spawn.tx) + Math.abs(b.ty - spawn.ty)) -
+    (Math.abs(a.tx - spawn.tx) + Math.abs(a.ty - spawn.ty)))[0];
 }
 
 /**
- * BFS en la grid de tiles transitables.
- * Devuelve la distancia minima en pasos desde (sx,sy) hasta (tx,ty).
- * Si no es alcanzable, devuelve Infinity.
+ * ¿Se puede recorrer `dirs` con ≤5 slots? Cada slot = 1 paso, o el bloque `func1`
+ * (mismo, de ≤3 pasos) si la Función está habilitada. Busca el mejor bloque F.
  */
-function bfsDistance(floor, walls, cols, rows, sx, sy, tx, ty) {
-  if (sx === tx && sy === ty) return 0;
-  if (!inBounds(sx, sy, cols, rows) || !inBounds(tx, ty, cols, rows)) return Infinity;
-
-  const solid = (x, y) => {
-    if (!inBounds(x, y, cols, rows)) return true;
-    const idx = flatIndex(x, y, cols);
-    return walls[idx] !== 0;
+function feasibility(dirs, hasFunc) {
+  const n = dirs.length;
+  if (n === 0) return { ok: true, slots: 0, note: 'sin pasos' };
+  if (!hasFunc) {
+    return n <= MAX_MAIN
+      ? { ok: true, slots: n, note: `${n} movimientos directos` }
+      : { ok: false, slots: n, note: `${n} pasos > ${MAX_MAIN} slots y sin Función` };
+  }
+  // Con Función: probar cada bloque F (subcadena de largo 2..MAX_FUNC) y tokenizar.
+  let best = null;
+  const tryF = (F) => {
+    const L = F.length;
+    const dp = new Array(n + 1).fill(Infinity);
+    dp[0] = 0;
+    for (let i = 1; i <= n; i++) {
+      dp[i] = dp[i - 1] + 1; // un paso suelto
+      if (L > 0 && i >= L) {
+        let match = true;
+        for (let k = 0; k < L; k++) if (dirs[i - L + k] !== F[k]) { match = false; break; }
+        if (match) dp[i] = Math.min(dp[i], dp[i - L] + 1);
+      }
+    }
+    return dp[n];
   };
-
-  if (solid(sx, sy) || solid(tx, ty)) return Infinity;
-
-  const queue = [[sx, sy, 0]];
-  const visited = new Set([`${sx},${sy}`]);
-  const dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-
-  while (queue.length > 0) {
-    const [cx, cy, dist] = queue.shift();
-    for (const [dx, dy] of dirs) {
-      const nx = cx + dx;
-      const ny = cy + dy;
-      const key = `${nx},${ny}`;
-      if (!inBounds(nx, ny, cols, rows)) continue;
-      if (visited.has(key)) continue;
-      if (solid(nx, ny)) continue;
-      if (nx === tx && ny === ty) return dist + 1;
-      visited.add(key);
-      queue.push([nx, ny, dist + 1]);
+  for (let L = MAX_FUNC; L >= 2; L--) {
+    for (let i = 0; i + L <= n; i++) {
+      const F = dirs.slice(i, i + L);
+      const slots = tryF(F);
+      if (best == null || slots < best.slots) best = { slots, F };
     }
   }
-
-  return Infinity;
+  const plain = n; // sin función = n slots
+  if (best == null || plain < best.slots) best = { slots: plain, F: null };
+  const ok = best.slots <= MAX_MAIN;
+  const note = best.F
+    ? `${best.slots} slots usando ƒ=[${best.F.join(',')}]`
+    : `${best.slots} movimientos directos`;
+  return { ok, slots: best.slots, note };
 }
-
-// ── Validadores ──────────────────────────────────────────────────────────────
-
-function validateStructure(level) {
-  const errors = [];
-  if (level.version !== 1) errors.push('version debe ser 1');
-  if (!Number.isInteger(level.cols) || level.cols < 1) errors.push('cols debe ser un entero positivo');
-  if (!Number.isInteger(level.rows) || level.rows < 1) errors.push('rows debe ser un entero positivo');
-  if (level.tile !== 16) errors.push('tile debe ser 16');
-  if (!Array.isArray(level.tilesets)) errors.push('tilesets debe ser un array');
-  if (!level.layers || typeof level.layers !== 'object') errors.push('layers debe ser un objeto');
-  if (!Array.isArray(level.layers.floor)) errors.push('layers.floor debe ser un array');
-  if (!Array.isArray(level.layers.walls)) errors.push('layers.walls debe ser un array');
-  if (!level.spawn || typeof level.spawn !== 'object') errors.push('spawn debe ser un objeto {tx, ty}');
-
-  const expectedSize = level.cols * level.rows;
-  if (level.layers.floor.length !== expectedSize) {
-    errors.push(`layers.floor tiene ${level.layers.floor.length} elementos, se esperaban ${expectedSize}`);
-  }
-  if (level.layers.walls.length !== expectedSize) {
-    errors.push(`layers.walls tiene ${level.layers.walls.length} elementos, se esperaban ${expectedSize}`);
-  }
-
-  return errors;
-}
-
-function validateGids(level) {
-  const errors = [];
-  const { cols, rows, layers } = level;
-  const size = cols * rows;
-
-  for (let i = 0; i < size; i++) {
-    const fg = layers.floor[i];
-    const wg = layers.walls[i];
-    if (!isValidGid(fg)) {
-      errors.push(`GID invalido en floor[${i}] = ${fg}`);
-    }
-    if (!isValidGid(wg)) {
-      errors.push(`GID invalido en walls[${i}] = ${wg}`);
-    }
-  }
-
-  return errors;
-}
-
-function validateSpawn(level) {
-  const errors = [];
-  const { cols, rows, spawn, layers } = level;
-  const { tx, ty } = spawn;
-
-  if (!inBounds(tx, ty, cols, rows)) {
-    errors.push(`Spawn (${tx},${ty}) esta fuera de los limites del mapa (${cols}x${rows})`);
-    return errors;
-  }
-
-  const wallGid = layers.walls[flatIndex(tx, ty, cols)];
-  if (wallGid !== 0) {
-    errors.push(`Spawn (${tx},${ty}) esta sobre un muro (walls GID = ${wallGid}, rango: ${gidRangeName(wallGid)})`);
-  }
-
-  return errors;
-}
-
-function validatePickups(level) {
-  const errors = [];
-  const { cols, rows, spawn, layers, objects } = level;
-
-  if (!objects || objects.length === 0) {
-    console.warn('  [ADVERTENCIA] El nivel no tiene objetos (pickups).');
-    return errors;
-  }
-
-  const pickups = objects.filter(o => o.type === 'pickup');
-  if (pickups.length === 0) {
-    console.warn('  [ADVERTENCIA] El nivel tiene objetos pero ninguno es de tipo "pickup".');
-    return errors;
-  }
-
-  // Verificar que ningun pickup este dentro de un muro
-  for (const p of pickups) {
-    if (!inBounds(p.tx, p.ty, cols, rows)) {
-      errors.push(`Pickup en (${p.tx},${p.ty}) esta fuera de los limites del mapa`);
-      continue;
-    }
-    const wallGid = layers.walls[flatIndex(p.tx, p.ty, cols)];
-    if (wallGid !== 0) {
-      errors.push(`Pickup en (${p.tx},${p.ty}) esta dentro de un muro (GID ${wallGid})`);
-    }
-  }
-
-  if (errors.length > 0) return errors;
-
-  // ── Pathfinding: Conectividad con salto maximo de 7 pasos ────────────────
-
-  const nodes = [
-    { tx: spawn.tx, ty: spawn.ty, label: 'spawn' },
-    ...pickups.map((p, i) => ({ tx: p.tx, ty: p.ty, label: `pickup_${i}` })),
-  ];
-
-  const distances = Array(nodes.length).fill(0).map(() => Array(nodes.length).fill(Infinity));
-
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const dist = bfsDistance(
-        layers.floor, layers.walls,
-        cols, rows,
-        nodes[i].tx, nodes[i].ty,
-        nodes[j].tx, nodes[j].ty
-      );
-      distances[i][j] = dist;
-      distances[j][i] = dist;
-    }
-  }
-
-  const adj = Array(nodes.length).fill(0).map(() => []);
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = 0; j < nodes.length; j++) {
-      if (i !== j && distances[i][j] <= MAX_STEPS) {
-        adj[i].push(j);
-      }
-    }
-  }
-
-  const visited = new Set();
-  const queue = [0];
-  visited.add(0);
-
-  while (queue.length > 0) {
-    const u = queue.shift();
-    for (const v of adj[u]) {
-      if (!visited.has(v)) {
-        visited.add(v);
-        queue.push(v);
-      }
-    }
-  }
-
-  for (let i = 1; i < nodes.length; i++) {
-    if (!visited.has(i)) {
-      const p = nodes[i];
-      const realDist = distances[0][i];
-      errors.push(
-        `Pickup en (${p.tx},${p.ty}) NO es alcanzable desde el spawn en segmentos de ${MAX_STEPS} pasos. ` +
-        `Distancia minima real: ${realDist === Infinity ? 'INFINITA (bloqueado)' : realDist + ' pasos'}. ` +
-        `Redisenar: acorta la distancia, elimina muros intermedios, o anade un pickup puente.`
-      );
-    }
-  }
-
-  return errors;
-}
-
-function validateWeather(level) {
-  const errors = [];
-  const w = level.weather || {};
-
-  for (const type of WEATHER_TYPES) {
-    const v = w[type];
-    if (v === undefined) continue;
-    if (typeof v !== 'number' || v < 0 || v > 1) {
-      errors.push(`Clima "${type}" tiene intensidad invalida: ${v}. Debe estar entre 0.0 y 1.0`);
-    }
-  }
-
-  return errors;
-}
-
-// ── Main ─────────────────────────────────────────────────────────────────────
 
 function main() {
   const args = process.argv.slice(2);
-  if (args.length < 1) {
-    console.error('Uso: node validate-level.js <level.json>');
-    process.exit(1);
+  const file = args.find(a => !a.startsWith('--'));
+  let toolsArg = '';
+  const tIdx = args.indexOf('--tools');
+  if (tIdx !== -1 && args[tIdx + 1]) toolsArg = args[tIdx + 1];
+  const eqTool = args.find(a => a.startsWith('--tools='));
+  if (eqTool) toolsArg = eqTool.split('=')[1];
+  const tools = toolsArg.split(',').map(s => s.trim()).filter(Boolean);
+  const hasFunc = tools.includes('func') || tools.includes('func1') || tools.includes('funcion');
+
+  if (!file) { console.error('Uso: node validate-level.js <level.json> [--tools func,jump]'); process.exit(1); }
+
+  const lvl = JSON.parse(fs.readFileSync(path.resolve(file), 'utf-8'));
+  const cols = lvl.cols, rows = lvl.rows;
+  const floor = expandLayer(lvl.layers.floor || [], cols, rows);
+  const pathFlat = expandLayer(lvl.layers.path || [], cols, rows);
+  const walls = expandLayer(lvl.layers.walls || [], cols, rows);
+  const spawn = lvl.spawn || { tx: 0, ty: 0 };
+  const objects = lvl.objects || [];
+  const pickups = objects.filter(o => o.type === 'pickup' || o.type === 'pickup_with_animation');
+
+  const errors = [], warns = [], info = [];
+  const isPath = (x, y) => x >= 0 && y >= 0 && x < cols && y < rows && pathFlat[y * cols + x] !== 0;
+  const hasPath = pathFlat.some(v => v !== 0);
+
+  // 1. Dimensiones / spawn
+  if (!(cols > 0 && rows > 0)) errors.push('cols/rows inválidos');
+  if (spawn.tx < 0 || spawn.ty < 0 || spawn.tx >= cols || spawn.ty >= rows)
+    errors.push(`spawn fuera de límites: ${spawn.tx},${spawn.ty}`);
+  if (floor.every(v => v === 0)) warns.push('la capa floor está vacía (¿sin terreno?)');
+
+  // 2. Clima 0..1
+  for (const [k, v] of Object.entries(lvl.weather || {}))
+    if (typeof v === 'number' && (v < 0 || v > 1)) errors.push(`weather.${k}=${v} fuera de 0..1`);
+
+  // 3. Pickups
+  if (pickups.length === 0) warns.push('el nivel no tiene pickups (se gana solo llegando a la meta)');
+
+  // 3b. Decoración multi-tile (se vería cortada)
+  for (const o of objects.filter(o => o.type === 'deco' || o.type === 'top')) {
+    if (MULTITILE_KEYS.has(o.key))
+      warns.push(`deco "${o.key}" (${o.tx},${o.ty}) suele ser multi-tile → un frame suelto se ve cortado`);
+    else if (o.key === 'grass_props' && o.frame >= 0 && o.frame <= 8)
+      warns.push(`grass_props frame ${o.frame} en (${o.tx},${o.ty}) está en la fila de árboles (multi-tile) → se ve cortado`);
   }
 
-  const filePath = path.resolve(args[0]);
-  if (!fs.existsSync(filePath)) {
-    console.error(`Error: No se encontro el archivo: ${filePath}`);
-    process.exit(1);
-  }
+  if (hasPath) {
+    // 4. Corredor conectado + meta
+    const { dirs, tiles } = pathWalk(pathFlat, cols, rows, spawn);
+    const totalPathTiles = pathFlat.filter(v => v !== 0).length;
+    const visitedPathTiles = tiles.filter(t => isPath(t.x, t.y)).length;
+    const goal = pathGoal(pathFlat, cols, rows, spawn);
 
-  const level = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  const name = path.basename(filePath);
-
-  console.log(`\nValidando nivel: ${name}`);
-  console.log(`Dimensiones: ${level.cols}x${level.rows}`);
-  console.log('-'.repeat(50));
-
-  const allErrors = [];
-
-  const steps = [
-    { label: 'Estructura del JSON', fn: validateStructure },
-    { label: 'GIDs validos', fn: validateGids },
-    { label: 'Spawn transitable', fn: validateSpawn },
-    { label: 'Objetos y Pathfinding (<=7 pasos)', fn: validatePickups },
-    { label: 'Clima', fn: validateWeather },
-  ];
-
-  for (const step of steps) {
-    const errs = step.fn(level);
-    if (errs.length === 0) {
-      console.log(`  [OK] ${step.label}`);
+    if (dirs.length === 0) errors.push('el spawn no toca el corredor (no hay primer paso de path)');
+    if (visitedPathTiles < totalPathTiles)
+      warns.push(`el corredor tiene ${totalPathTiles - visitedPathTiles} tile(s) no alcanzados desde el spawn (¿ramas o tiles sueltos?)`);
+    if (goal) {
+      const end = tiles[tiles.length - 1];
+      if (end.x !== goal.tx || end.y !== goal.ty)
+        warns.push(`el recorrido no termina en la meta calculada (${goal.tx},${goal.ty})`);
+      info.push(`meta: ${goal.tx},${goal.ty}`);
     } else {
-      console.log(`  [FALLO] ${step.label}:`);
-      for (const e of errs) {
-        console.log(`      - ${e}`);
-        allErrors.push(e);
-      }
+      errors.push('no se pudo determinar la meta (el path no tiene extremos)');
     }
+
+    // 5. Pickups sobre el corredor
+    for (const p of pickups)
+      if (!isPath(p.tx, p.ty)) errors.push(`pickup en ${p.tx},${p.ty} NO está sobre el corredor`);
+
+    // 6. Factibilidad por presupuesto
+    const feas = feasibility(dirs, hasFunc);
+    info.push(`recorrido: ${dirs.length} pasos → [${dirs.join(',')}]`);
+    info.push(`herramientas: ${tools.length ? tools.join(', ') : '(solo movimiento)'}`);
+    if (!feas.ok)
+      errors.push(`NO factible con las herramientas dadas: ${feas.note} (máx ${MAX_MAIN} slots${hasFunc ? ` + ƒ≤${MAX_FUNC}` : ''})`);
+    else
+      info.push(`factible: ${feas.note}`);
+  } else {
+    warns.push('el nivel no tiene capa `path`: el jugador se mueve libre (mecánica sin corredor)');
+    for (const p of pickups)
+      if (walls[p.ty * cols + p.tx] !== 0) errors.push(`pickup en ${p.tx},${p.ty} cae sobre un muro`);
   }
 
-  console.log('-'.repeat(50));
-  if (allErrors.length === 0) {
-    console.log('Resultado: NIVEL VALIDO ✅');
-    process.exit(0);
-  } else {
-    console.log(`Resultado: NIVEL INVALIDO ❌ (${allErrors.length} error/es)`);
-    console.log('\nAccion recomendada: Corregir el esquema semantico y recompilar con build-level.js');
-    process.exit(1);
-  }
+  // 7. GIDs no negativos (chequeo laxo)
+  for (const [name, arr] of [['floor', floor], ['path', pathFlat], ['walls', walls]])
+    if (arr.some(v => v < 0 || !Number.isInteger(v))) errors.push(`la capa ${name} tiene GIDs inválidos`);
+
+  // ── Reporte ──
+  console.log(`\nValidando: ${file}`);
+  for (const i of info) console.log('  · ' + i);
+  for (const w of warns) console.log('  ⚠ ' + w);
+  for (const e of errors) console.log('  ✗ ' + e);
+  if (errors.length === 0) { console.log('\n✅ PASA — nivel jugable.\n'); process.exit(0); }
+  console.log(`\n❌ FALLA — ${errors.length} error(es). Corregí y volvé a validar.\n`);
+  process.exit(1);
 }
 
-main();
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+if (isMain) main();
+
+export { expandLayer, pathWalk, pathGoal, feasibility };
