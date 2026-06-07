@@ -11,4 +11,12 @@ export const LABEL = {
   jump: 'jump',
   jump_up: 'jump up', jump_down: 'jump down', jump_left: 'jump left', jump_right: 'jump right',
 };
-export const GYM = window.__GYM = { queue: [], queueFunc1: [], running: false, onRun: null, onRestart: null };
+export const GYM = window.__GYM = {
+  queue: [],
+  queueFunc1: [],
+  ifCondition: '',
+  ifAction: '',
+  running: false,
+  onRun: null,
+  onRestart: null,
+};
