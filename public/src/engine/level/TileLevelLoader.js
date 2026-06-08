@@ -12,6 +12,7 @@ import { Level } from '../../domain/Level.js';
 export function loadLevel(scene, levelKey) {
   const lvl = readLevelJson(scene, levelKey);
   if (!lvl) throw new Error(`Level "${levelKey}" not loaded`);
+  if (!lvl) throw new Error(`Level "${levelKey}" not loaded`);
 
   const cols = lvl.cols, rows = lvl.rows;
   const floor = expandLayer(lvl.layers.floor, cols, rows);

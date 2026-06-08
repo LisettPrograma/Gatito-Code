@@ -39,9 +39,11 @@ const TERRAINS = {
   fences:       { 0:105,1:109,2:104,3:108,4:101,5:105,6:100,7:104,8:106,9:110,10:105,11:109,12:102,13:106,14:101,15:105 },
   // water: relleno uniforme (sin bordes).
   water:        Object.fromEntries(Array.from({ length: 16 }, (_, i) => [i, 400])),
+  // snow_tiles_1: firstgid 5100, layout 11×25 (autotile en primeras filas, mismo patrón 11×7).
+  snow_tiles_1: { 0:5112,1:5123,2:5111,3:5122,4:5101,5:5112,6:5100,7:5111,8:5113,9:5124,10:5112,11:5123,12:5102,13:5113,14:5101,15:5112 },
 };
 
-const FLOOR_TERRAINS = ['grass', 'dirt', 'dirt_v2', 'grass_hills', 'dgrass_tiles', 'bush', 'water'];
+const FLOOR_TERRAINS = ['grass', 'dirt', 'dirt_v2', 'grass_hills', 'dgrass_tiles', 'bush', 'water', 'snow_tiles_1'];
 const WALL_TERRAINS  = ['hills', 'fences'];
 
 const DEFAULT_FLOOR_GID = TERRAINS.grass[15];  // 13 — pasto centro
