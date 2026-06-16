@@ -24,9 +24,9 @@ const WX_SVG = {
   storm:  `<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"><g fill="currentColor"><path d="M4 0 L6 0 L5 3 L7 3 L3 8 L4 5 L2 5 Z"/><rect x="1" y="2" width="1" height="1"/><rect x="7" y="5" width="1" height="1"/></g></svg>`,
 };
 
-let edPanel, edTitle, edStatus, edTabs, edPalette, edLayersBar;
+let edPanel, edTitle, edStatus, edPalette, edLayersBar;
 let edMainTabsBar, edAssetsPanel, edWeatherPanel;
-let edTabsBar, edTilesetPanel, edObjectsPanel;
+let edTilesetPanel, edObjectsPanel;
 let edToolbar, edSummary, edToast, edModal, edModalText, edModalConfirm, edModalCancel;
 let edLayerPicker;
 let edHoverPreview;
@@ -42,6 +42,7 @@ let activeGroup = null;
 let activeVariant = {};
 let activeEditorTab = 'tileset';
 let activeMainTab = 'assets';
+let openTreeNodes = new Set(['tileset-root']);
 let selectedObject = { key: null, frame: 0, type: 'deco' };
 let isDirty = false;
 
@@ -49,13 +50,11 @@ export function initEditor() {
   edPanel = document.getElementById('editor-panel');
   edTitle = document.getElementById('ed-title');
   edStatus = document.getElementById('ed-status');
-  edTabs = document.getElementById('ed-tabs');
   edPalette = document.getElementById('ed-palette');
   edLayersBar = document.getElementById('ed-layers');
   edMainTabsBar = document.getElementById('ed-main-tabs-bar');
   edAssetsPanel = document.getElementById('ed-assets-panel');
   edWeatherPanel = document.getElementById('ed-weather-panel');
-  edTabsBar = document.getElementById('ed-tabs-bar');
   edTilesetPanel = document.getElementById('ed-tileset-panel');
   edObjectsPanel = document.getElementById('ed-objects-panel');
   edToolbar = document.getElementById('ed-toolbar');
@@ -72,21 +71,17 @@ export function initEditor() {
     b.addEventListener('click', () => switchMainTab(b.dataset.tab));
   });
 
-  edTabsBar.querySelectorAll('button').forEach(b => {
-    b.addEventListener('click', () => switchEditorTab(b.dataset.tab));
-  });
-
   document.getElementById('ed-save').onclick = () => edCfg?.onSave();
   document.getElementById('ed-play').onclick = () => edCfg?.onPlay();
   document.getElementById('ed-menu').onclick = () => edCfg?.onMenu();
   document.getElementById('ed-clear').onclick = () => confirmClearLayer();
   document.getElementById('ed-revert').onclick = () => confirmRevert();
-  document.getElementById('ed-clear-objects').onclick = () => confirmClearObjects();
   document.getElementById('ed-intro-mode').onclick = () => edCfg?.onIntroMode();
 
   initToolbar();
   initModal();
   initHoverPreview();
+  initTree();
 
   window.__setEditor = (cfg) => { if (!cfg) hideEditor(); else showEditor(cfg); };
   window.__setEditor_updateLayer = (name) => updateLayerHighlight(name);
@@ -116,8 +111,10 @@ export function initEditor() {
     activeGroup = objDef.group ?? null;
     activeVariant = objDef.group ? { ...(objDef.variant ?? {}) } : {};
     renderTabs();
-    renderObjCategories(edCfg);
-    renderObjTabs(edCfg);
+    renderTreeState();
+    renderObjectsTree(edCfg);
+    renderVariantSwitches();
+    renderObjPalette();
     highlightObjType();
     updateSelectionInfo();
   };
@@ -131,9 +128,13 @@ export function initEditor() {
     selectedGid = gid;
     activeTerrainName = null;
     selectedObject = { key: null, frame: 0, type: 'deco' };
+    openTreeNodes.add('tileset-root');
+    openTreeNodes.delete('objects-root');
+    openTreeNodes.add(`tileset-cat-${tileset.category}`);
     renderTabs();
-    renderTilesetCategories(edCfg);
-    renderTilesetTabs(edCfg);
+    renderTreeState();
+    renderTilesetTree(edCfg);
+    renderPalette();
     highlightSelected();
     highlightTerrain();
     updateSelectionInfo();
@@ -153,6 +154,77 @@ function initToolbar() {
   if (!edToolbar) return;
   document.getElementById('ed-tool-undo').onclick = () => edCfg?.onUndo();
   document.getElementById('ed-tool-redo').onclick = () => edCfg?.onRedo();
+}
+
+function renderTreeState() {
+  document.querySelectorAll('.ed-tree-root, .ed-tree-category').forEach(node => {
+    const nodeId = node.dataset.treeNode;
+    if (nodeId) {
+      node.classList.toggle('open', openTreeNodes.has(nodeId));
+    }
+  });
+  document.querySelectorAll('.ed-tree-root').forEach(root => {
+    const nodeId = root.dataset.treeNode;
+    const isActive = (nodeId === 'tileset-root' && activeEditorTab === 'tileset') ||
+                     (nodeId === 'objects-root' && activeEditorTab === 'objects');
+    root.classList.toggle('active', isActive);
+  });
+}
+
+function initTree() {
+  const container = document.getElementById('ed-tab-content');
+  if (!container) return;
+
+  container.addEventListener('click', (e) => {
+    const header = e.target.closest('.ed-tree-header');
+    if (header) {
+      const root = header.closest('.ed-tree-root');
+      const nodeId = root.dataset.treeNode;
+      const isOpen = root.classList.contains('open');
+      root.classList.toggle('open', !isOpen);
+      if (isOpen) openTreeNodes.delete(nodeId);
+      else openTreeNodes.add(nodeId);
+      return;
+    }
+
+    const catHeader = e.target.closest('.ed-tree-category-header');
+    if (catHeader) {
+      const category = catHeader.closest('.ed-tree-category');
+      const nodeId = category.dataset.treeNode;
+      const isOpen = category.classList.contains('open');
+      category.classList.toggle('open', !isOpen);
+      if (isOpen) openTreeNodes.delete(nodeId);
+      else openTreeNodes.add(nodeId);
+      return;
+    }
+
+    const item = e.target.closest('.ed-tree-item');
+    if (item) {
+      const tree = item.closest('.ed-asset-tree');
+      if (tree.id === 'ed-tileset-panel') {
+        selectTileset(+item.dataset.idx);
+      } else {
+        selectObjectEntry(+item.dataset.entryIdx, item.dataset.category);
+      }
+    }
+  });
+}
+
+function updateBottomControls() {
+  const isTileset = activeEditorTab === 'tileset';
+  const variantContainer = document.getElementById('ed-variant-switches');
+  const objType = document.getElementById('ed-obj-type');
+  const autotileRow = document.getElementById('ed-autotile-row');
+
+  if (variantContainer) {
+    variantContainer.style.display = (!isTileset && activeGroup) ? 'flex' : 'none';
+  }
+  if (objType) {
+    objType.style.display = isTileset ? 'none' : 'flex';
+  }
+  if (autotileRow && !isTileset) {
+    autotileRow.style.display = 'none';
+  }
 }
 
 function initModal() {
@@ -178,10 +250,6 @@ function hideModal() {
 
 function confirmClearLayer() {
   showModal(`¿Limpiar la capa "${edCfg?.getLayer?.()}"?`, () => edCfg?.onClear?.());
-}
-
-function confirmClearObjects() {
-  showModal('¿Eliminar todos los objetos del nivel?', () => edCfg?.onClearObjects?.());
 }
 
 function confirmRevert() {
@@ -335,15 +403,14 @@ function hideLayerPicker() {
 
 function hideEditor() {
   edPanel.style.display = 'none';
-  edTabs.innerHTML = '';
   edPalette.innerHTML = '';
-  document.getElementById('ed-tileset-categories').innerHTML = '';
-  document.getElementById('ed-obj-tabs').innerHTML = '';
-  document.getElementById('ed-obj-palette').innerHTML = '';
+  document.getElementById('ed-tileset-tree').innerHTML = '';
+  document.getElementById('ed-objects-tree').innerHTML = '';
   document.getElementById('ed-variant-switches').innerHTML = '';
   activeEditorTab = 'tileset';
   activeMainTab = 'assets';
   selectedObject = { key: null, frame: 0, type: 'deco' };
+  openTreeNodes = new Set(['tileset-root']);
   isDirty = false;
   hideLayerPicker();
   hideTileHoverPreview();
@@ -367,15 +434,6 @@ function showEditor(cfg) {
 
   activeTilesetCategory = 'grass';
   activeTilesetIdx = cfg.tilesets.findIndex(t => t.category === 'grass');
-  renderTilesetCategories(cfg);
-  renderTilesetTabs(cfg);
-
-  renderTabs();
-
-  edLayersBar.querySelectorAll('button').forEach(b => {
-    b.onclick = () => cfg.onLayer(b.dataset.layer);
-  });
-  updateLayerHighlight(cfg.getLayer());
 
   activeObjType = 'deco';
   activeObjTabIdx = 0;
@@ -389,34 +447,56 @@ function showEditor(cfg) {
       edCfg?.onObjectTypeChange?.(activeObjType);
     };
   });
-  renderObjCategories(cfg);
-  renderObjTabs(cfg);
+
+  renderTabs();
+  renderTilesetTree(cfg);
+  renderObjectsTree(cfg);
+
+  edLayersBar.querySelectorAll('button').forEach(b => {
+    b.onclick = () => cfg.onLayer(b.dataset.layer);
+  });
+  updateLayerHighlight(cfg.getLayer());
 
   document.getElementById('ed-spawn').onclick = () => cfg.onSpawnMode();
 
   renderWeatherControls(cfg);
   updateSummary(cfg.getSummary?.());
+
+  if (activeEditorTab === 'tileset') {
+    renderPalette();
+  } else {
+    renderObjPalette();
+  }
 }
 
 function renderTabs() {
-  if (!edTabsBar) return;
   edMainTabsBar?.querySelectorAll('button').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === activeMainTab);
   });
-  edTabsBar.querySelectorAll('button').forEach(b => {
-    b.classList.toggle('active', b.dataset.tab === activeEditorTab);
-  });
-  edTilesetPanel?.classList.toggle('active', activeEditorTab === 'tileset');
-  edObjectsPanel?.classList.toggle('active', activeEditorTab === 'objects');
   edAssetsPanel?.classList.toggle('active', activeMainTab === 'assets');
   edWeatherPanel?.classList.toggle('active', activeMainTab === 'weather');
   edPanel?.setAttribute('data-main-tab', activeMainTab);
+
+  updateBottomControls();
 }
 
 function switchEditorTab(tab) {
   if (!['tileset', 'objects'].includes(tab)) return;
   activeEditorTab = tab;
+
+  const rootId = tab === 'tileset' ? 'tileset-root' : 'objects-root';
+  openTreeNodes.add(rootId);
+  const otherRootId = tab === 'tileset' ? 'objects-root' : 'tileset-root';
+  openTreeNodes.delete(otherRootId);
+
   renderTabs();
+  renderTreeState();
+  if (tab === 'tileset') {
+    renderPalette();
+    updateAutotileButton(edCfg);
+  } else {
+    renderObjPalette();
+  }
   edCfg?.onTabChange?.(tab);
 }
 
@@ -463,14 +543,128 @@ function highlightTerrain() {
   btn.classList.toggle('active', btn.dataset.terrain === (activeTerrainName ?? ''));
 }
 
+function selectTileset(idx) {
+  activeEditorTab = 'tileset';
+  activeTilesetIdx = idx;
+  const tileset = edCfg?.tilesets[idx];
+  if (tileset) activeTilesetCategory = tileset.category;
+  renderTabs();
+  renderTreeState();
+  renderTilesetTree(edCfg);
+  renderPalette();
+  if (activeTerrainName) {
+    activeTerrainName = null;
+    edCfg?.onTerrain(null);
+  }
+  updateAutotileButton(edCfg);
+}
+
+function selectObjectEntry(idx, category) {
+  activeEditorTab = 'objects';
+  activeObjCategory = category;
+  const entries = getGroupEntries();
+  const entry = entries[idx];
+  if (!entry) return;
+
+  activeObjTabIdx = idx;
+  if (entry.type === 'group') {
+    activeGroup = entry.key;
+    const firstObj = entry.objects[0];
+    activeVariant = { ...(firstObj?.variant ?? {}) };
+  } else {
+    activeGroup = null;
+    activeVariant = {};
+  }
+
+  renderTabs();
+  renderTreeState();
+  renderObjectsTree(edCfg);
+  renderVariantSwitches();
+  renderObjPalette();
+}
+
+function renderTilesetTree(cfg) {
+  const treeEl = document.getElementById('ed-tileset-tree');
+  if (!treeEl || !cfg) return;
+  treeEl.innerHTML = '';
+
+  for (const [catKey, catInfo] of Object.entries(cfg.tilesetCategories)) {
+    const category = document.createElement('div');
+    category.className = 'ed-tree-category';
+    category.dataset.treeNode = `tileset-cat-${catKey}`;
+
+    const header = document.createElement('button');
+    header.className = 'ed-tree-category-header';
+    header.innerHTML = `<span>${catInfo.label}</span><span class="ed-tree-arrow">▾</span>`;
+    category.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'ed-tree-category-body';
+
+    cfg.tilesets.forEach((t, i) => {
+      if (t.category !== catKey) return;
+      const item = document.createElement('button');
+      item.className = 'ed-tree-item';
+      item.dataset.idx = i;
+      item.textContent = t.label;
+      item.classList.toggle('active', i === activeTilesetIdx);
+      body.appendChild(item);
+    });
+
+    category.appendChild(body);
+    treeEl.appendChild(category);
+
+    category.classList.toggle('open', openTreeNodes.has(category.dataset.treeNode));
+  }
+}
+
+function renderObjectsTree(cfg) {
+  const treeEl = document.getElementById('ed-objects-tree');
+  if (!treeEl || !cfg) return;
+  treeEl.innerHTML = '';
+
+  for (const [catKey, catInfo] of Object.entries(cfg.categories)) {
+    const category = document.createElement('div');
+    category.className = 'ed-tree-category';
+    category.dataset.treeNode = `objects-cat-${catKey}`;
+
+    const header = document.createElement('button');
+    header.className = 'ed-tree-category-header';
+    header.innerHTML = `<span>${catInfo.label}</span><span class="ed-tree-arrow">▾</span>`;
+    category.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'ed-tree-category-body';
+
+    const prevCategory = activeObjCategory;
+    activeObjCategory = catKey;
+    const entries = getGroupEntries();
+    activeObjCategory = prevCategory;
+
+    entries.forEach((entry, i) => {
+      const item = document.createElement('button');
+      item.className = 'ed-tree-item';
+      item.dataset.entryIdx = i;
+      item.dataset.category = catKey;
+      item.textContent = entry.type === 'group' ? entry.def.label : entry.object.label;
+      item.classList.toggle('active', i === activeObjTabIdx && catKey === activeObjCategory);
+      body.appendChild(item);
+    });
+
+    category.appendChild(body);
+    treeEl.appendChild(category);
+
+    category.classList.toggle('open', openTreeNodes.has(category.dataset.treeNode));
+  }
+}
+
 function renderPalette() {
   if (!edCfg) return;
   edPalette.innerHTML = '';
-  edTabs.querySelectorAll('button').forEach(b =>
-    b.classList.toggle('active', +b.dataset.idx === activeTilesetIdx));
 
   const t = edCfg.tilesets[activeTilesetIdx];
   edPalette.style.setProperty('--cols', t.cols);
+  const tileSize = parseFloat(getComputedStyle(edPalette).getPropertyValue('--tile-size')) || 24;
 
   const eraser = document.createElement('div');
   eraser.className = 'ed-tile eraser';
@@ -486,62 +680,15 @@ function renderPalette() {
         d.className = 'ed-tile';
         d.dataset.gid = gid;
         d.style.backgroundImage = `url("${t.url}")`;
-        d.style.backgroundSize = `${t.cols * 24}px ${t.rows * 24}px`;
-        d.style.backgroundPosition = `-${c * 24}px -${r * 24}px`;
+        d.style.backgroundSize = `${t.cols * tileSize}px ${t.rows * tileSize}px`;
+        d.style.backgroundPosition = `-${c * tileSize}px -${r * tileSize}px`;
       d.title = `${t.name} #${r * t.cols + c} (gid ${gid})`;
       d.addEventListener('click', () => setSelected(gid));
       edPalette.appendChild(d);
     }
   }
   highlightSelected();
-}
-
-function renderTilesetCategories(cfg) {
-  const catEl = document.getElementById('ed-tileset-categories');
-  if (!catEl) return;
-  catEl.innerHTML = '';
-  for (const [key, info] of Object.entries(cfg.tilesetCategories)) {
-    const b = document.createElement('button');
-    b.textContent = info.label;
-    b.dataset.category = key;
-    b.addEventListener('click', () => {
-      activeTilesetCategory = key;
-      activeTilesetIdx = cfg.tilesets.findIndex(t => t.category === key);
-      renderTilesetCategories(cfg);
-      renderTilesetTabs(cfg);
-    });
-    catEl.appendChild(b);
-  }
-  catEl.querySelectorAll('button').forEach(b => {
-    b.classList.toggle('active', b.dataset.category === activeTilesetCategory);
-  });
-}
-
-function renderTilesetTabs(cfg) {
-  edTabs.innerHTML = '';
-  cfg.tilesets.forEach((t, i) => {
-    if (t.category !== activeTilesetCategory) return;
-    const b = document.createElement('button');
-    b.textContent = t.label;
-    b.dataset.idx = i;
-    b.addEventListener('click', () => {
-      activeTilesetIdx = i;
-      renderPalette();
-      if (activeTerrainName) {
-        activeTerrainName = null;
-        edCfg?.onTerrain(null);
-      }
-      updateAutotileButton(cfg);
-    });
-    edTabs.appendChild(b);
-  });
-  renderPalette();
-
-  if (activeTerrainName) {
-    activeTerrainName = null;
-    edCfg?.onTerrain(null);
-  }
-  updateAutotileButton(cfg);
+  updateBottomControls();
 }
 
 function setSelected(gid) {
@@ -595,29 +742,6 @@ function highlightObjType() {
   });
 }
 
-function renderObjCategories(cfg) {
-  const catEl = document.getElementById('ed-obj-categories');
-  if (!catEl) return;
-  catEl.innerHTML = '';
-  for (const [key, info] of Object.entries(cfg.categories)) {
-    const b = document.createElement('button');
-    b.textContent = info.label;
-    b.dataset.category = key;
-    b.addEventListener('click', () => {
-      activeObjCategory = key;
-      activeObjTabIdx = 0;
-      activeGroup = null;
-      activeVariant = {};
-      renderObjCategories(cfg);
-      renderObjTabs(cfg);
-    });
-    catEl.appendChild(b);
-  }
-  catEl.querySelectorAll('button').forEach(b => {
-    b.classList.toggle('active', b.dataset.category === activeObjCategory);
-  });
-}
-
 function getCategoryObjects() {
   if (!edCfg) return [];
   return edCfg.objects.filter(o => o.category === activeObjCategory);
@@ -651,43 +775,6 @@ function findEntryIndexForObject(objDef) {
     return entries.findIndex(e => e.type === 'group' && e.key === objDef.group);
   }
   return entries.findIndex(e => e.type === 'single' && e.object.key === objDef.key);
-}
-
-function renderObjTabs(cfg) {
-  const objTabsEl = document.getElementById('ed-obj-tabs');
-  objTabsEl.innerHTML = '';
-  const entries = getGroupEntries();
-
-  const currentEntry = entries[activeObjTabIdx];
-  if (currentEntry?.type === 'group' && !activeGroup) {
-    activeGroup = currentEntry.key;
-    activeVariant = { ...currentEntry.objects[0].variant };
-  } else if (currentEntry?.type === 'single') {
-    activeGroup = null;
-    activeVariant = {};
-  }
-
-  entries.forEach((entry, i) => {
-    const b = document.createElement('button');
-    b.textContent = entry.type === 'group' ? entry.def.label : entry.object.label;
-    b.addEventListener('click', () => {
-      activeObjTabIdx = i;
-      if (entry.type === 'group') {
-        activeGroup = entry.key;
-        const firstObj = entry.objects[0];
-        activeVariant = { ...firstObj.variant };
-      } else {
-        activeGroup = null;
-        activeVariant = {};
-      }
-      renderObjTabs(cfg);
-      renderVariantSwitches();
-      renderObjPalette();
-    });
-    objTabsEl.appendChild(b);
-  });
-  renderVariantSwitches();
-  renderObjPalette();
 }
 
 function _shortVariantLabel(text) {
@@ -795,11 +882,9 @@ function findVariantObject() {
 
 function renderObjPalette() {
   if (!edCfg) return;
-  const objPalette = document.getElementById('ed-obj-palette');
-  const objTabsEl = document.getElementById('ed-obj-tabs');
+  const objPalette = document.getElementById('ed-palette');
   objPalette.innerHTML = '';
-  objTabsEl.querySelectorAll('button').forEach((b, i) =>
-    b.classList.toggle('active', i === activeObjTabIdx));
+  const tileSize = parseFloat(getComputedStyle(objPalette).getPropertyValue('--tile-size')) || 24;
 
   let o;
   if (activeGroup) {
@@ -831,7 +916,7 @@ function renderObjPalette() {
 
     for (let i = 0; i < o.frames.length; i++) {
       const fingerprint = getFrameRectInImage(o, i);
-      const style = buildFrameThumbnailStyle(fingerprint, 24);
+      const style = buildFrameThumbnailStyle(fingerprint, tileSize);
 
       const d = document.createElement('div');
       d.className = 'ed-tile';
@@ -861,7 +946,7 @@ function renderObjPalette() {
       for (let c = 0; c < o.cols; c++) {
         const frame = r * o.cols + c;
         const fingerprint = getFrameRectInImage(o, frame);
-        const style = buildFrameThumbnailStyle(fingerprint, 24);
+        const style = buildFrameThumbnailStyle(fingerprint, tileSize);
 
         const d = document.createElement('div');
         d.className = 'ed-tile';
@@ -876,6 +961,7 @@ function renderObjPalette() {
       }
     }
   }
+  updateBottomControls();
 }
 
 function _clampWeather(v) {
@@ -1160,32 +1246,28 @@ function buildFrameThumbnailStyle({ url, f, imgW, imgH }, targetSize) {
 }
 
 function initHoverPreview() {
-  const palettes = ['ed-palette', 'ed-obj-palette'];
-  for (const id of palettes) {
-    const palette = document.getElementById(id);
-    if (!palette) continue;
+  const palette = document.getElementById('ed-palette');
+  if (!palette) return;
 
-    palette.addEventListener('mouseover', (e) => {
-      const tile = e.target.closest('.ed-tile');
-      if (!tile || tile.classList.contains('eraser')) return;
-      showTileHoverPreview(id, tile);
-    });
+  palette.addEventListener('mouseover', (e) => {
+    const tile = e.target.closest('.ed-tile');
+    if (!tile || tile.classList.contains('eraser')) return;
+    showTileHoverPreview(tile);
+  });
 
-    palette.addEventListener('mouseout', (e) => {
-      if (e.target.closest('.ed-tile')) hideTileHoverPreview();
-    });
+  palette.addEventListener('mouseout', (e) => {
+    if (e.target.closest('.ed-tile')) hideTileHoverPreview();
+  });
 
-    palette.addEventListener('mouseleave', () => hideTileHoverPreview());
-  }
+  palette.addEventListener('mouseleave', () => hideTileHoverPreview());
 }
 
-function showTileHoverPreview(paletteId, tileEl) {
+function showTileHoverPreview(tileEl) {
   if (!edHoverPreview || !edCfg) return;
 
   let fingerprint;
-  if (paletteId === 'ed-palette') {
-    const gid = parseInt(tileEl.dataset.gid, 10);
-    if (!gid) return;
+  const gid = tileEl.dataset.gid ? parseInt(tileEl.dataset.gid, 10) : 0;
+  if (gid) {
     const t = edCfg.tilesets[activeTilesetIdx];
     if (!t) return;
     fingerprint = getTilesetFrameRect(t, gid);
