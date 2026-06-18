@@ -14,6 +14,8 @@ export function initDialog() {
     levelDialog.classList.add('visible');
     _onClose = onClose || null;
   };
+
+
 }
 
 function closeDialog() {
