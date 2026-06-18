@@ -1,5 +1,5 @@
 /* ─── Panels & Editor base ─── */
-#panels, #editor-panel {
+#panels, #right-panels, #editor-panel {
   display: none;
   flex-direction: column;
   gap: 12px;

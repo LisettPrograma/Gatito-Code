@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gatito</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +31,8 @@
         </div>
       </div>
     </div>
+    <div id="game-frame"></div>
+
     <div id="hud"><div><b>Gatito</b> · <kbd>Esc</kbd> back to menu</div></div>
 
     <div id="panels">
@@ -161,8 +164,12 @@
         </div>
       </div>
 
+      <div class="ed-col-toggle" id="ed-col-toggle">
+        <button data-col="tools"><span class="ed-col-arrow">❮</span> 🔧 Herramientas</button>
+        <button data-col="palette">🎨 Paleta <span class="ed-col-arrow">❯</span></button>
+      </div>
+
       <div class="ed-columns">
-        <!-- Columna izquierda: herramientas -->
         <div class="ed-col ed-col-tools">
           <div class="ed-section">
             <h3>Nivel</h3>
@@ -214,7 +221,6 @@
           </div>
         </div>
 
-        <!-- Columna derecha: paleta -->
         <div class="ed-col ed-col-palette">
           <div id="ed-main-tabs-bar">
             <button data-tab="assets">ASSETS</button>

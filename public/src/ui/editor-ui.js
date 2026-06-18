@@ -82,8 +82,9 @@ export function initEditor() {
   initModal();
   initHoverPreview();
   initTree();
+  initColToggle();
 
-  window.__setEditor = (cfg) => { if (!cfg) hideEditor(); else showEditor(cfg); };
+  window.__setEditor = (cfg) => { if (!cfg) hideEditor(); else showEditor(cfg); setTimeout(() => window.dispatchEvent(new Event('resize')), 50); };
   window.__setEditor_updateLayer = (name) => updateLayerHighlight(name);
   window.__setEditor_updateHover = (pos) => {
     const el = document.getElementById('ed-hover-text');
@@ -186,6 +187,25 @@ function scrollActiveItemIntoView() {
   if (aRect.top < cRect.top + margin || aRect.bottom > cRect.bottom - margin) {
     active.scrollIntoView({ block: 'nearest', behavior: 'auto' });
   }
+}
+
+/** Toggle Herramientas / Paleta en pantallas < 1400px */
+function initColToggle() {
+  const bar = document.getElementById('ed-col-toggle');
+  if (!bar || !edPanel) return;
+
+  // Estado inicial: mostrar herramientas
+  edPanel.dataset.edColActive = 'tools';
+
+  bar.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-col]');
+    if (!btn) return;
+    // Activar animaciones solo a partir del primer toggle (no en render inicial)
+    edPanel.classList.add('ed-col-animated');
+    edPanel.dataset.edColActive = btn.dataset.col;
+    // Notificar a Phaser que el layout cambió para recalcular canvas
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  });
 }
 
 function initTree() {
