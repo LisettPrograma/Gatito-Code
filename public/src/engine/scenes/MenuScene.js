@@ -48,6 +48,10 @@ export class MenuScene extends Phaser.Scene {
   }
 
   showScreen(screen) {
+    if (this._scrollHandler) {
+      this.input.off('wheel', this._scrollHandler);
+      this._scrollHandler = null;
+    }
     this.dynamicGroup.clear(true, true);
     this.buttons = [];
     this.selected = 0;
@@ -57,13 +61,13 @@ export class MenuScene extends Phaser.Scene {
     const STEP = 20;
 
     if (screen === 'main') {
-      this.addLabel('main menu');
+      this.addLabel('Menu Principal');
       let y = 60;
-      this.makeButton(bx, y, 'Levels', () => this.showScreen('levels')); y += STEP + 2;
-      this.makeButton(bx, y, 'Level Editor', () => this.showScreen('editor')); y += STEP + 2;
-      this.makeButton(bx, y, 'Credits', () => this.showScreen('credits'));
+      this.makeButton(bx, y, 'Niveles', () => this.showScreen('levels')); y += STEP + 2;
+      this.makeButton(bx, y, 'Editor de Niveles', () => this.showScreen('editor')); y += STEP + 2;
+      this.makeButton(bx, y, 'Creditos', () => window.__showCredits?.());
     } else if (screen === 'levels') {
-      this.addLabel('level selection');
+      this.addLabel('selección de niveles');
       const allLevels = getAllLevels();
       const completed = getCompletedLevels();
 
@@ -86,10 +90,10 @@ export class MenuScene extends Phaser.Scene {
 
       this.makeButton(bx, H - 30, '← Back', () => this.showScreen('main'));
     } else if (screen === 'editor') {
-      this.addLabel('level editor');
-      this.makeButton(bx, 46, '+ New level', () => this.promptNewLevel(), 'accent');
+      this.addLabel('editor de niveles');
+      this.makeButton(bx, 46, '+ Nuevo nivel', () => this.promptNewLevel(), 'accent');
 
-      const sep = this.add.text(bx, 62, '— edit existing —', {
+      const sep = this.add.text(bx, 62, '— editar existente —', {
         fontFamily: 'monospace', fontSize: '6px', color: '#446',
       }).setOrigin(0.5);
       this.dynamicGroup.add(sep);
@@ -113,13 +117,6 @@ export class MenuScene extends Phaser.Scene {
       });
 
       this.makeButton(bx, H - 30, '← Back', () => this.showScreen('main'));
-    } else if (screen === 'credits') {
-      this.addLabel('credits');
-      const tx = this.add.text(bx, 84, 'Coming Soon', {
-        fontFamily: 'monospace', fontSize: '10px', color: '#ffee88',
-      }).setOrigin(0.5);
-      this.dynamicGroup.add(tx);
-      this.makeButton(bx, 120, '← Back', () => this.showScreen('main'));
     }
   }
 
