@@ -10,14 +10,23 @@
   --accent-blue: #5a9aff;
   --text-primary: #eee;
   --text-dim: #8895a7;
-  --sprout-dark: #3d2008;
-  --sprout-mid: #5a3a1a;
+  --sprout-dark: #4a2810;
+  --sprout-mid: #6b3f1c;
+  --sprout-text: #6b3a14;
+  --sprout-text-bright: #4a2810;
+  --sprout-text-on-warm: #4a2810;
+  --sprout-text-soft: #6b3a14;
   --sprout-light: #d1ba9e;
   --sprout-border: #8c643c;
+  --sprout-cream: #f3deb6;
   --panel-radius: 10px;
   --transition-fast: .08s ease;
   --transition-med: .18s ease;
   --transition-slow: .3s ease;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 @font-face {
@@ -31,15 +40,19 @@ html, body {
   background: var(--bg-deep);
   color: var(--text-primary);
   font-family: ui-monospace, monospace;
+  letter-spacing: 0.5px;
 }
 
+/* ─── Mobile-first: columna vertical, compacto ─── */
 body {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
   min-height: 100vh;
-  gap: 24px;
-  padding: 0 24px;
+  gap: 8px;
+  padding: 4px;
+  box-sizing: border-box;
   overflow-x: auto;
   background:
     radial-gradient(ellipse 80% 60% at 50% 50%, rgba(20, 30, 52, .6) 0%, transparent 70%),
@@ -208,10 +221,20 @@ body.app-loading #boot-splash {
   text-align: right;
 }
 
-canvas {
+/* ─── Game frame (responsive canvas container) ─── */
+#game-frame {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+#game-frame canvas {
   image-rendering: pixelated;
   display: block;
-  order: 2;
   border-radius: 4px;
   box-shadow:
     0 0 0 1px var(--border-dim),
@@ -219,14 +242,10 @@ canvas {
     0 0 80px -20px rgba(90,160,255,.08);
 }
 
-#panels      { order: 1; }
-#right-panels{ order: 3; display: none; flex-direction: column; gap: 12px; }
-#editor-panel{ order: 4; }
-
 #hud {
   position: fixed;
   top: 8px; left: 8px;
-  font-size: 12px;
+  font-size: 14px;
   background: rgba(9,12,16,.8);
   backdrop-filter: blur(6px);
   padding: 6px 12px;
@@ -237,3 +256,32 @@ canvas {
   box-shadow: 0 2px 12px rgba(0,0,0,.4);
 }
 #hud b { color: var(--accent-warm); }
+
+/* ─── Tablet (≥768px): más respiración ─── */
+@media (min-width: 768px) {
+  body {
+    padding: 2px;
+    gap: 12px;
+  }
+}
+
+/* ─── Desktop (≥1100px): layout horizontal de 3 zonas ─── */
+@media (min-width: 1100px) {
+  body {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px 24px;
+  }
+  #game-frame {
+    flex: 3 1 0;
+    min-width: 320px;
+    max-height: 98vh;
+    order: 2;
+    width: auto;
+  }
+  #panels      { order: 1; }
+  #right-panels{ order: 3; }
+  #editor-panel{ order: 3; }
+}
