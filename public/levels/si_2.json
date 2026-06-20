@@ -1157,13 +1157,6 @@
     },
     {
       "key": "grass_props",
-      "frame": 33,
-      "tx": 1,
-      "ty": 2,
-      "type": "deco"
-    },
-    {
-      "key": "grass_props",
       "frame": 30,
       "tx": 1,
       "ty": 5,

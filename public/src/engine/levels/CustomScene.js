@@ -9,6 +9,10 @@ const LEVEL_COPY = {
     welcome: 'Este tramo repite la misma idea dos veces. Usa FUNCION 1 como bloque reutilizable junto con SI ROCA SALTAR.',
     mission: 'Mision: Repite una mini-rutina con F1 para juntar todo usando SI ROCA SALTAR.',
   },
+  jardin_tutorial: {
+    welcome: 'Bienvenido al jardin. Recorre el camino con los movimientos basicos y recolecta todo lo que encuentres.',
+    mission: 'Mision: Usa los movimientos para recorrer el jardin y recolectar todos los items.',
+  },
   si_1: {
     welcome: 'Ahora que ya conoces IF, usalo junto con movimientos normales para cruzar y despues girar.',
     mission: 'Mision: Usa SI junto con movimientos normales para cruzar las rocas y recolectar todo.',

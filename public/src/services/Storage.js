@@ -56,6 +56,7 @@ export const BUILTIN_LEVELS = [
   { key: 'remanso_otonal', name: 'Remanso Otoñal', scene: 'Custom' },
   { key: 'if',     name: 'IF',      scene: 'Custom' },
   { key: 'si_2',   name: 'SI 2',    scene: 'Custom' },
+  { key: 'jardin_tutorial', name: 'Jardin Tutorial', scene: 'Custom' },
   { key: 'si_1',   name: 'SI 1',    scene: 'Custom' },
   { key: 'si_3',   name: 'SI 3',    scene: 'Custom' },
   { key: 'for',    name: 'FOR',     scene: 'Custom' },
