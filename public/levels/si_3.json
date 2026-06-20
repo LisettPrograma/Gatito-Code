@@ -1093,27 +1093,6 @@
       "type": "deco"
     },
     {
-      "key": "dungeon_rocks_obj",
-      "frame": 0,
-      "tx": 7,
-      "ty": 5,
-      "type": "deco"
-    },
-    {
-      "key": "dungeon_rocks_obj",
-      "frame": 0,
-      "tx": 5,
-      "ty": 7,
-      "type": "deco"
-    },
-    {
-      "key": "dungeon_rocks_obj",
-      "frame": 0,
-      "tx": 4,
-      "ty": 4,
-      "type": "deco"
-    },
-    {
       "key": "tree_full",
       "frame": 2,
       "tx": 9,
@@ -1205,11 +1184,32 @@
       "type": "deco"
     },
     {
-      "key": "fruit_berries_items",
-      "frame": 2,
       "tx": 12,
       "ty": 9,
+      "key": "grass_props",
+      "frame": 13,
       "type": "pickup_with_animation"
+    },
+    {
+      "tx": 4,
+      "ty": 6,
+      "key": "grass_props",
+      "frame": 10,
+      "type": "deco"
+    },
+    {
+      "tx": 5,
+      "ty": 8,
+      "key": "grass_props",
+      "frame": 10,
+      "type": "deco"
+    },
+    {
+      "tx": 7,
+      "ty": 5,
+      "key": "grass_props",
+      "frame": 10,
+      "type": "deco"
     }
   ],
   "weather": {

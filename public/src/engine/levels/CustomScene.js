@@ -13,6 +13,10 @@ const LEVEL_COPY = {
     welcome: 'Bienvenido al jardin. Recorre el camino con los movimientos basicos y recolecta todo lo que encuentres.',
     mission: 'Mision: Usa los movimientos para recorrer el jardin y recolectar todos los items.',
   },
+  for: {
+    welcome: 'Nuevo concepto: FOR. Repite un bloque varias veces sin llenar todo el programa principal. IF sigue disponible como herramienta ya desbloqueada.',
+    mission: 'Mision: Usa FOR para repetir una secuencia corta y llegar al objetivo. Tambien podes combinarlo con SI cuando haga falta.',
+  },
   si_1: {
     welcome: 'Ahora que ya conoces IF, usalo junto con movimientos normales para cruzar y despues girar.',
     mission: 'Mision: Usa SI junto con movimientos normales para cruzar las rocas y recolectar todo.',
@@ -20,10 +24,6 @@ const LEVEL_COPY = {
   si_3: {
     welcome: 'Este nivel mezcla saltos automaticos con giros. Si solo avanzas, no alcanza.',
     mission: 'Mision: Usa SI ROCA SALTAR y cambia de direccion para juntar los dos objetos.',
-  },
-  for: {
-    welcome: 'Nuevo concepto: FOR. Repite un bloque varias veces sin llenar todo el programa principal. IF sigue disponible como herramienta ya desbloqueada.',
-    mission: 'Mision: Usa FOR para repetir una secuencia corta y llegar al objetivo. Tambien podes combinarlo con SI cuando haga falta.',
   },
 };
 
