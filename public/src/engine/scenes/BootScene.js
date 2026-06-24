@@ -9,7 +9,6 @@ export class BootScene extends Phaser.Scene {
 
   preload() {
     this._loadingAudio = new Audio('assets/audio/loading.mp3');
-    this._loadingAudio.loop = true;
     this._loadingAudio.volume = 0.15;
     const tryPlay = () => this._loadingAudio?.play().catch(() => {});
     tryPlay();

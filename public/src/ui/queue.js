@@ -101,21 +101,21 @@ export function initQueue() {
 
   clearBtn.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx('ui_erase');
+    if (GYM.queue.length) uiSfx('ui_erase');
     GYM.queue.length = 0;
     renderAllSlots();
   });
 
   clearFunc1Btn.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx('ui_erase');
+    if (GYM.queueFunc1.length) uiSfx('ui_erase');
     GYM.queueFunc1.length = 0;
     renderAllSlots();
   });
 
   clearForBtn?.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx('ui_erase');
+    if (GYM.queueFor.length) uiSfx('ui_erase');
     GYM.queueFor.length = 0;
     renderAllSlots();
   });
