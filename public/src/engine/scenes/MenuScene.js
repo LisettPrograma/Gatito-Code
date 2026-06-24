@@ -239,24 +239,22 @@ export class MenuScene extends Phaser.Scene {
     } else if (screen === 'settings') {
       this.addLabel(t('menu.settings_title'));
 
-      const panelW = 210, panelH = 130, panelY = 100;
+      const panelW = 210, panelH = 172, panelY = 100;
       const panel = this.add.nineslice(bx, panelY, 'settings_panel', undefined, panelW, panelH, 12, 12, 12, 12);
       this.dynamicGroup.add(panel);
 
       const left = bx - panelW / 2;
       const right = bx + panelW / 2;
-      const sliderX = left + 30;
-      const sliderW = panelW - 30 - 16;
+      const sliderX = left + 16;
+      const sliderW = panelW - 32;
 
       const addAudioRow = (cy, label, getV, setV) => {
-        const spk = this.add.image(left + 15, cy, 'settings_speaker');
-        const lbl = this.add.text(left + 28, cy - 13, label, {
+        const lbl = this.add.text(left + 16, cy - 13, label, {
           fontFamily: "'Press Start 2P', monospace", fontSize: '7px', color: '#4a2810',
         }).setOrigin(0, 0.5);
         const pct = this.add.text(right - 14, cy - 13, `${Math.round(getV() * 100)}%`, {
           fontFamily: "'Press Start 2P', monospace", fontSize: '6px', color: '#6b3f1c',
         }).setOrigin(1, 0.5);
-        this.dynamicGroup.add(spk);
         this.dynamicGroup.add(lbl);
         this.dynamicGroup.add(pct);
         this.makeSlider(sliderX, cy + 5, sliderW, getV, (v) => {
@@ -265,10 +263,10 @@ export class MenuScene extends Phaser.Scene {
         });
       };
 
-      addAudioRow(panelY - 32, t('menu.music'),  () => Settings.getMusicVolume(), (v) => Settings.setMusicVolume(v));
-      addAudioRow(panelY + 4, t('menu.sfx'), () => Settings.getSfxVolume(),   (v) => Settings.setSfxVolume(v));
+      addAudioRow(panelY - 40, t('menu.music'),  () => Settings.getMusicVolume(), (v) => Settings.setMusicVolume(v));
+      addAudioRow(panelY - 4, t('menu.sfx'), () => Settings.getSfxVolume(),   (v) => Settings.setSfxVolume(v));
 
-      const langY = panelY + 42;
+      const langY = panelY + 36;
       const langLbl = this.add.text(left + 28, langY, t('menu.language'), {
         fontFamily: "'Press Start 2P', monospace", fontSize: '7px', color: '#4a2810',
       }).setOrigin(0, 0.5);
@@ -300,10 +298,10 @@ export class MenuScene extends Phaser.Scene {
 
   // Slider de volumen arrastrable (track marron + relleno verde + knob crema).
   makeSlider(x, y, w, getVal, setVal) {
-    const h = 7;
-    const track = this.add.rectangle(x, y, w, h, 0x7a5a36).setOrigin(0, 0.5).setStrokeStyle(2, 0x4a2810);
-    const fill  = this.add.rectangle(x, y, w, h, 0x8fce4f).setOrigin(0, 0.5);
-    const knob  = this.add.circle(x, y, 7, 0xf3deb6).setStrokeStyle(2, 0x4a2810);
+    const h = 8;
+    const track = this.add.rectangle(x, y, w, h, 0x7a5a36).setOrigin(0, 0.5).setStrokeStyle(2, 0x4a2810).setDepth(5);
+    const fill  = this.add.rectangle(x + 2, y, w - 4, h - 2, 0x8fce4f).setOrigin(0, 0.5).setDepth(6);
+    const knob  = this.add.image(x, y, 'settings_speaker').setScale(1).setDepth(7);
 
     const applyV = (v) => {
       v = Phaser.Math.Clamp(v, 0, 1);
@@ -315,6 +313,7 @@ export class MenuScene extends Phaser.Scene {
     fill.scaleX = v0;
     knob.x = x + w * v0;
 
+
     knob.setInteractive({ draggable: true, useHandCursor: true });
     this.input.setDraggable(knob);
     knob.on('drag', (_pointer, dragX) => applyV((dragX - x) / w));
@@ -324,7 +323,7 @@ export class MenuScene extends Phaser.Scene {
     track.setInteractive({ useHandCursor: true });
     track.on('pointerdown', (_p, localX) => applyV(localX / w));
 
-    for (const o of [track, fill, knob]) { o.setDepth(5); this.dynamicGroup.add(o); }
+    for (const o of [track, fill, knob]) { this.dynamicGroup.add(o); }
   }
 
   _createLevelSquare(x, y, num, level, isUnlocked, isCompleted, parentContainer) {
