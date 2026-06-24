@@ -61,12 +61,15 @@ export const STRINGS = {
 
     // ── Panel IF ──
     'if.condition_label': 'Si pasa',
+    'if.condition_label_2': 'Y si pasa',
     'if.no_condition': 'sin condicion',
     'if.rock_ahead': 'roca adelante',
+    'if.tree_ahead': 'arbol adelante',
     'if.blocked_ahead': 'obstaculo adelante',
     'if.action_label': 'Hacer esto',
     'if.no_action': 'sin accion',
     'if.jump': 'saltar',
+    'if.cut': 'cortar',
     'if.navigate': 'rodear',
 
     // ── Dialog ──
@@ -333,12 +336,15 @@ export const STRINGS = {
 
     // ── Panel IF ──
     'if.condition_label': 'If happens',
+    'if.condition_label_2': 'And if',
     'if.no_condition': 'no condition',
     'if.rock_ahead': 'rock ahead',
+    'if.tree_ahead': 'tree ahead',
     'if.blocked_ahead': 'obstacle ahead',
     'if.action_label': 'Then do',
     'if.no_action': 'no action',
     'if.jump': 'jump',
+    'if.cut': 'cut',
     'if.navigate': 'go around',
 
     // ── Dialog ──
