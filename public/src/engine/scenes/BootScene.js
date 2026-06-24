@@ -8,6 +8,15 @@ export class BootScene extends Phaser.Scene {
   constructor() { super('Boot'); }
 
   preload() {
+    this._loadingAudio = new Audio('assets/audio/loading.mp3');
+    this._loadingAudio.loop = true;
+    this._loadingAudio.volume = 0.15;
+    const tryPlay = () => this._loadingAudio?.play().catch(() => {});
+    tryPlay();
+    const resume = () => { tryPlay(); document.removeEventListener('pointerdown', resume); document.removeEventListener('keydown', resume); };
+    document.addEventListener('pointerdown', resume, { once: true });
+    document.addEventListener('keydown', resume, { once: true });
+
     this._setBootStatus('Cargando mundo base...');
     this.load.on('progress', (value) => {
       this._setBootProgress(value, value < 1 ? 'Cargando recursos...' : 'Afinando menu...');
@@ -56,9 +65,12 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('ui_click', 'assets/audio/bip_1.wav');
     this.load.audio('jump_sound', 'assets/audio/squick_1.wav');
     this.load.audio('ui_execute', 'assets/audio/bip_execute.mp3');
+    this.load.audio('ui_focus', 'assets/audio/ui_focus.mp3');
+    this.load.audio('ui_erase', 'assets/audio/erase.mp3');
   }
 
   create() {
+    if (this._loadingAudio) { this._loadingAudio.pause(); this._loadingAudio = null; }
     bindUiSfx(this.sound);
 
     // Generar textura de pixel blanco 2×2 para particulas climaticas.

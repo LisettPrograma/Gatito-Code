@@ -31,4 +31,19 @@ export function bindUiSfx(soundManager) {
   window.__playUiSfx = (key = 'ui_click') => {
     try { soundManager.play(key, { volume: 0.15 * Settings.getSfxVolume() }); } catch {}
   };
+
+  const FOCUS_CLASSES = ['intro-highlight', 'unlock-glow'];
+  new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.type !== 'attributes' || m.attributeName !== 'class') continue;
+      const el = m.target;
+      const cls = el.classList;
+      if (FOCUS_CLASSES.some(c => cls.contains(c)) && !el._uiFocusPlayed) {
+        el._uiFocusPlayed = true;
+        window.__playUiSfx('ui_focus');
+      } else if (!FOCUS_CLASSES.some(c => cls.contains(c))) {
+        el._uiFocusPlayed = false;
+      }
+    }
+  }).observe(document.body, { attributes: true, attributeFilter: ['class'], subtree: true });
 }

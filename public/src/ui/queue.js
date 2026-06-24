@@ -48,6 +48,7 @@ export function initQueue() {
         const queue = obtenerQueuePorId(payload.queueId);
         if (!queue) return;
         queue.splice(payload.index, 1);
+        uiSfx('ui_erase');
         renderAllSlots();
       }
     } catch (err) {}
@@ -100,21 +101,21 @@ export function initQueue() {
 
   clearBtn.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx();
+    uiSfx('ui_erase');
     GYM.queue.length = 0;
     renderAllSlots();
   });
 
   clearFunc1Btn.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx();
+    uiSfx('ui_erase');
     GYM.queueFunc1.length = 0;
     renderAllSlots();
   });
 
   clearForBtn?.addEventListener('click', () => {
     if (GYM.running) return;
-    uiSfx();
+    uiSfx('ui_erase');
     GYM.queueFor.length = 0;
     renderAllSlots();
   });
