@@ -45,7 +45,7 @@ export function initResult() {
 function addAction(label, handler) {
   const b = document.createElement('button');
   b.textContent = label;
-  b.addEventListener('click', handler);
+  b.addEventListener('click', () => { window.__playUiSfx?.(); handler(); });
   actionsEl.appendChild(b);
 }
 

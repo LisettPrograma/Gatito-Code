@@ -25,3 +25,10 @@ export function playMusic(scene, key) {
 export function playSfx(scene, key, base = 0.15) {
   scene.sound.play(key, { volume: base * Settings.getSfxVolume() });
 }
+
+/** Conecta el sound manager de Phaser para que los botones DOM puedan emitir sonido. */
+export function bindUiSfx(soundManager) {
+  window.__playUiSfx = () => {
+    try { soundManager.play('ui_click', { volume: 0.15 * Settings.getSfxVolume() }); } catch {}
+  };
+}

@@ -14,6 +14,7 @@ let clearFunc1Btn;
 let clearForBtn;
 let trashZoneEl;
 let activeTarget = 'main';
+const uiSfx = () => window.__playUiSfx?.();
 
 export function initQueue() {
   slotsEl = document.getElementById('slots');
@@ -61,6 +62,7 @@ export function initQueue() {
   dirsPanel.querySelectorAll('button[data-dir]:not([data-dir="jump"])').forEach(btn => {
     btn.addEventListener('click', () => {
       if (GYM.running) return;
+      uiSfx();
       const queue = obtenerQueuePorTarget(activeTarget);
       const max = obtenerMaximoQueue(queue);
       const dir = btn.dataset.dir;
@@ -75,6 +77,7 @@ export function initQueue() {
   if (jumpBtn) {
     jumpBtn.addEventListener('click', e => {
       if (GYM.running) return;
+      uiSfx();
       e.stopPropagation();
       const queue = obtenerQueuePorTarget(activeTarget);
       const max = obtenerMaximoQueue(queue);
@@ -97,18 +100,21 @@ export function initQueue() {
 
   clearBtn.addEventListener('click', () => {
     if (GYM.running) return;
+    uiSfx();
     GYM.queue.length = 0;
     renderAllSlots();
   });
 
   clearFunc1Btn.addEventListener('click', () => {
     if (GYM.running) return;
+    uiSfx();
     GYM.queueFunc1.length = 0;
     renderAllSlots();
   });
 
   clearForBtn?.addEventListener('click', () => {
     if (GYM.running) return;
+    uiSfx();
     GYM.queueFor.length = 0;
     renderAllSlots();
   });
@@ -116,6 +122,7 @@ export function initQueue() {
   runBtn.addEventListener('click', async () => {
     if (GYM.running) return;
     if (GYM.queue.length === 0) return;
+    uiSfx();
     if (typeof GYM.onRun !== 'function') return;
     setRunning(true);
     try {
@@ -129,6 +136,7 @@ export function initQueue() {
 
   document.getElementById('restart').addEventListener('click', () => {
     if (GYM.running) return;
+    uiSfx();
     window.__clearProgram();
     GYM.onRestart?.();
   });
@@ -194,7 +202,7 @@ window.__setPanels = visible => {
 function initTargetSwitch() {
   const switchEl = document.getElementById('target-switch');
   switchEl.querySelectorAll('.target-opt').forEach(opt => {
-    opt.addEventListener('click', () => activarTarget(opt.dataset.target));
+    opt.addEventListener('click', () => { uiSfx(); activarTarget(opt.dataset.target); });
   });
 }
 
@@ -262,6 +270,7 @@ function renderForSeleccionado() {
 function initPanelesPlegables() {
   document.querySelectorAll('[data-toggle-panel]').forEach(btn => {
     btn.addEventListener('click', () => {
+      uiSfx();
       const panel = document.getElementById(btn.dataset.togglePanel);
       if (!panel) return;
       const plegado = panel.classList.toggle('plegado');

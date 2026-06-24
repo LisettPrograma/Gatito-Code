@@ -1,6 +1,6 @@
 import { TILE, COLS, ROWS } from '../../config/game.js';
 import { getCustomLevels, addCustomLevel, createNewLevel, getAllLevels, getCompletedLevels, BUILTIN_LEVELS } from '../../services/Storage.js';
-import { playMusic } from '../audio.js';
+import { playMusic, playSfx } from '../audio.js';
 import * as Settings from '../../services/Settings.js';
 
 export class MenuScene extends Phaser.Scene {
@@ -13,7 +13,7 @@ export class MenuScene extends Phaser.Scene {
     window.__setEditor?.(null);
 
     if (!this.sound.get('bgm1')?.isPlaying) {
-      this.sound.stopAll();
+      if (this.menuMusic) { this.menuMusic.stop(); this.menuMusic.destroy(); }
       this.menuMusic = playMusic(this, 'bgm1');
     }
     // Cursor "pointing" sobre botones de Phaser (dibujados en canvas): al pasar
@@ -23,7 +23,7 @@ export class MenuScene extends Phaser.Scene {
     this.input.on('gameobjectout',  () => document.body.classList.remove('cursor-point'));
 
     this.events.once('shutdown', () => {
-      this.sound.stopAll();
+      if (this.menuMusic) { this.menuMusic.stop(); this.menuMusic.destroy(); this.menuMusic = null; }
       document.body.classList.remove('cursor-point');
     });
 
@@ -328,6 +328,7 @@ export class MenuScene extends Phaser.Scene {
       bg.on('pointerout', () => { bg.setFillStyle(0x3b5488); bg.setScale(1); });
       bg.on('pointerdown', () => {
         bg.setScale(0.95);
+        playSfx(this, 'ui_click', 0.15);
         this.scene.start(level.scene, { levelKey: level.key });
       });
     } else {
@@ -371,6 +372,7 @@ export class MenuScene extends Phaser.Scene {
     bg.on('pointerout',  () => { bg.setFillStyle(0x2d2010); bg.setScale(1); });
     bg.on('pointerdown', () => {
       bg.setScale(0.95);
+      playSfx(this, 'ui_click', 0.15);
       this.scene.start('Editor', { levelKey: level.key, returnScreen: 'editor' });
     });
   }
@@ -407,7 +409,7 @@ export class MenuScene extends Phaser.Scene {
     bg.setInteractive({ useHandCursor: true });
     const idx = this.buttons.length;
     bg.on('pointerover', () => { this.selected = idx; this.refresh(); });
-    bg.on('pointerdown', () => action());
+    bg.on('pointerdown', () => { playSfx(this, 'ui_click', 0.15); action(); });
     this.buttons.push({ bg, tx, action, type, textColor });
     this.dynamicGroup.add(bg);
     this.dynamicGroup.add(tx);

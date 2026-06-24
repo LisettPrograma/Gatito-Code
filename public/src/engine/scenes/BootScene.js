@@ -1,5 +1,6 @@
 import { preloadAssets, OBJECTS, defineTileFrames } from '../../engine/level/TileRegistry.js';
 import { createObjectAnimations } from '../../engine/level/ObjectAnimations.js';
+import { bindUiSfx } from '../audio.js';
 
 const BASE = 'assets/SproutLands-Sprites';
 
@@ -51,10 +52,13 @@ export class BootScene extends Phaser.Scene {
     this.load.audio('bgm3', 'assets/audio/background-music-3.mp3');
     this.load.audio('win_sound', 'assets/audio/win-sound.wav');
     this.load.audio('lose_sound', 'assets/audio/lose-sound.mp3');
-    this.load.audio('pickup_sound', 'assets/SproutLands-SorrySprites/Audio/boo_1.wav');
+    this.load.audio('pickup_sound', 'assets/audio/blup_1.wav');
+    this.load.audio('ui_click', 'assets/audio/bip_1.wav');
   }
 
   create() {
+    bindUiSfx(this.sound);
+
     // Generar textura de pixel blanco 2×2 para particulas climaticas.
     const canvas = document.createElement('canvas');
     canvas.width = 2;

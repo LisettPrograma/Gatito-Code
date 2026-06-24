@@ -220,6 +220,7 @@ export function showCard(html, signal) {
     const dismiss = () => { card.remove(); resolve(); };
 
     card.querySelector('button').addEventListener('click', () => {
+      window.__playUiSfx?.();
       card.classList.add('icard-out');
       card.addEventListener('animationend', dismiss, { once: true });
     });

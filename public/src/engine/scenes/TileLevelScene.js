@@ -63,7 +63,7 @@ export class TileLevelScene extends Phaser.Scene {
     const allLevels = getAllLevels();
     const levelIdx = allLevels.findIndex(l => l.key === this.levelKey);
     const bgmKey = (levelIdx >= 0 && levelIdx < 6) ? 'bgm2' : 'bgm3';
-    this.sound.stopAll();
+    if (this.bgm) { this.bgm.stop(); this.bgm.destroy(); }
     this.bgm = playMusic(this, bgmKey);
 
     const bus = window.__GYM;
@@ -89,7 +89,7 @@ export class TileLevelScene extends Phaser.Scene {
     document.addEventListener('keydown', onDocEsc);
 
     this.events.once('shutdown', () => {
-      this.sound.stopAll();
+      if (this.bgm) { this.bgm.stop(); this.bgm.destroy(); this.bgm = null; }
       destroyWeather(this);
       window.__setPanels?.(false);
       window.__setMission?.(null);
@@ -192,6 +192,7 @@ export class TileLevelScene extends Phaser.Scene {
       ayuda.title = on ? 'Ocultar camino guia' : 'Mostrar camino guia';
     };
     ayuda.addEventListener('click', () => {
+      window.__playUiSfx?.();
       if (this.pathMarkers) this.pathMarkers.setVisible(!this.pathMarkers.visible);
       syncAyuda();
     });
@@ -204,7 +205,7 @@ export class TileLevelScene extends Phaser.Scene {
     Object.assign(btn.style, { ...baseStyle, background: '#ffe600' });
     btn.addEventListener('mouseenter', () => btn.style.background = '#ffd000');
     btn.addEventListener('mouseleave', () => btn.style.background = '#ffe600');
-    btn.addEventListener('click', () => animatePath(this));
+    btn.addEventListener('click', () => { window.__playUiSfx?.(); animatePath(this); });
 
     wrap.append(ayuda, btn);
     document.getElementById('result-panel')?.appendChild(wrap);
@@ -257,8 +258,7 @@ export class TileLevelScene extends Phaser.Scene {
   decorate() { }
 
   resetLevel() {
-    this.sound.stopAll();
-    if (this.bgm) this.bgm.play();
+    if (this.bgm) { this.bgm.stop(); this.bgm.play(); }
 
     this.playerModel.reset();
     this.playerView.stopAnimations();
