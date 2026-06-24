@@ -90,6 +90,7 @@ export function initQueue() {
   dirsPanel.querySelectorAll('button[data-dir]:not([data-dir="jump"])').forEach(btn => {
     btn.setAttribute('draggable', 'true');
     btn.addEventListener('dragstart', e => {
+      uiSfx('drag_pick');
       e.dataTransfer.setData('text/plain', btn.dataset.dir);
       e.dataTransfer.effectAllowed = 'all';
     });
@@ -350,6 +351,7 @@ function setupDropZone(container, queue, queueId) {
         if (queue.length > maxAllowed) queue.length = maxAllowed;
       }
 
+      uiSfx('drag_drop');
       renderAllSlots();
     });
 
@@ -358,6 +360,7 @@ function setupDropZone(container, queue, queueId) {
         e.preventDefault();
         return;
       }
+      uiSfx('drag_pick');
       const dir = queue[i];
       const payload = { isMove: true, dir, queueId, index: i };
       e.dataTransfer.setData('text/plain', JSON.stringify(payload));
