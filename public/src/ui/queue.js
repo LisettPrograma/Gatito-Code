@@ -1,4 +1,4 @@
-import { MAX, ARROW, LABEL, GYM } from './state.js';
+import { MAX, ARROW, LABEL, GYM, getLabel } from './state.js';
 import { showJumpPickerForEl, initJumpPicker } from './jump-picker.js';
 
 let slotsEl;
@@ -227,7 +227,7 @@ function renderQueue(queue, container) {
         ? 'style="color:#7a4a12; font-size:10px; font-weight:900;"'
         : '';
     const labelStyle = isFunc ? 'style="color:#1a4a7a"' : isFor ? 'style="color:#7a4a12"' : '';
-    el.innerHTML = value ? `<span class="dir-icon" ${iconStyle}>${ARROW[value]}</span><span class="dir-label" ${labelStyle}>${LABEL[value]}</span>${varText}` : '';
+    el.innerHTML = value ? `<span class="dir-icon" ${iconStyle}>${ARROW[value]}</span><span class="dir-label" ${labelStyle}>${getLabel(value)}</span>${varText}` : '';
     el.classList.toggle('filled', !!value);
     el.draggable = !!value;
   });
@@ -285,7 +285,7 @@ function setRunning(on) {
   // Bloqueado mientras ejecuta O mientras hay un resultado (ganar/perder) sin reintentar.
   const blocked = on || GYM.locked;
   runBtn.classList.toggle('running', on);
-  runBtn.querySelector('.queue-label').textContent = on ? 'ejecutando...' : 'ejecutar';
+  runBtn.querySelector('.queue-label').textContent = on ? (window.__t?.('btn.running') ?? 'ejecutando...') : (window.__t?.('btn.run') ?? 'ejecutar');
   runBtn.querySelector('.queue-icon').textContent = on ? '\u23f5' : '\u2713';
   dirsPanel.querySelectorAll('button:not(.target-opt)').forEach(b => b.disabled = blocked);
   if (ifConditionSelect) ifConditionSelect.disabled = blocked;

@@ -16,12 +16,13 @@ export class BootScene extends Phaser.Scene {
     document.addEventListener('pointerdown', resume, { once: true });
     document.addEventListener('keydown', resume, { once: true });
 
-    this._setBootStatus('Cargando mundo base...');
+    const _t = (k) => window.__t?.(k) ?? k;
+    this._setBootStatus(_t('boot.world'));
     this.load.on('progress', (value) => {
-      this._setBootProgress(value, value < 1 ? 'Cargando recursos...' : 'Afinando menu...');
+      this._setBootProgress(value, value < 1 ? _t('boot.resources') : _t('boot.tuning'));
     });
     this.load.on('complete', () => {
-      this._setBootProgress(1, 'Listo');
+      this._setBootProgress(1, _t('boot.ready'));
     });
     // Character — Premium 384x1152 → 8x24 grid of 48x48 frames.
     // First 8 rows: idle_down, idle_up, idle_right, idle_left,
@@ -154,7 +155,7 @@ export class BootScene extends Phaser.Scene {
 
   _loadUIAssets() {
     const manifest = this.cache.json.get('ui_manifest');
-    this._setBootStatus('Armando interfaz...');
+    this._setBootStatus(window.__t?.('boot.ui') ?? 'Armando interfaz...');
 
     for (const t of manifest.textures) {
       if (this.textures.exists(t.key)) continue;
@@ -172,13 +173,13 @@ export class BootScene extends Phaser.Scene {
           repeat: anim.repeat ?? 0,
         });
       }
-      this._setBootProgress(1, 'Abriendo menu...');
+      this._setBootProgress(1, window.__t?.('boot.menu') ?? 'Abriendo menu...');
       this.scene.start('Menu');
     });
 
     // If nothing new to load, complete fires synchronously only if we start the loader.
     if (this.load.totalToLoad === 0) {
-      this._setBootProgress(1, 'Abriendo menu...');
+      this._setBootProgress(1, window.__t?.('boot.menu') ?? 'Abriendo menu...');
       this.scene.start('Menu');
     } else {
       this.load.start();

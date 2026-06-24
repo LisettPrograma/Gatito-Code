@@ -2,6 +2,7 @@ import { TILE, COLS, ROWS } from '../../config/game.js';
 import { getCustomLevels, addCustomLevel, createNewLevel, getAllLevels, getCompletedLevels, BUILTIN_LEVELS } from '../../services/Storage.js';
 import { playMusic, playSfx } from '../audio.js';
 import * as Settings from '../../services/Settings.js';
+import { t } from '../../services/i18n.js';
 
 export class MenuScene extends Phaser.Scene {
   constructor() { super('Menu'); }
@@ -34,7 +35,7 @@ export class MenuScene extends Phaser.Scene {
       this.add.rectangle(W / 2, H / 2, W - i * 40, H - i * 24, 0x1a2130, 0.12).setOrigin(0.5);
     }
 
-    this.add.text(W / 2, 18, 'GATITO CODE', {
+    this.add.text(W / 2, 18, t('menu.title'), {
       fontFamily: "'Press Start 2P', monospace", fontSize: '18px', color: '#ffee88',
       stroke: '#000', strokeThickness: 3,
     }).setOrigin(0.5);
@@ -42,7 +43,7 @@ export class MenuScene extends Phaser.Scene {
     const cat = this.add.sprite(16, H - 16, 'character_base', 0);
     cat.anims.play('walk_down');
 
-    this.add.text(W / 2, H - 6, 'Usa el mouse para elegir · Esc para volver', {
+    this.add.text(W / 2, H - 6, t('menu.hint'), {
       fontFamily: "'Press Start 2P', monospace", fontSize: '6px', color: '#556',
     }).setOrigin(0.5);
 
@@ -74,14 +75,14 @@ export class MenuScene extends Phaser.Scene {
     const STEP = 20;
 
     if (screen === 'main') {
-      this.addLabel('Menu Principal');
+      this.addLabel(t('menu.main'));
       let y = 60;
-      this.makeButton(bx, y, 'Niveles', () => this.showScreen('levels')); y += STEP + 6;
-      this.makeButton(bx, y, 'Editor de Niveles', () => this.showScreen('editor')); y += STEP + 6;
-      this.makeButton(bx, y, 'Configuracion', () => this.showScreen('settings')); y += STEP + 6;
-      this.makeButton(bx, y, 'Creditos', () => this.showScreen('credits'));
+      this.makeButton(bx, y, t('menu.levels'), () => this.showScreen('levels')); y += STEP + 6;
+      this.makeButton(bx, y, t('menu.editor'), () => this.showScreen('editor')); y += STEP + 6;
+      this.makeButton(bx, y, t('menu.settings'), () => this.showScreen('settings')); y += STEP + 6;
+      this.makeButton(bx, y, t('menu.credits'), () => this.showScreen('credits'));
     } else if (screen === 'levels') {
-      this.addLabel('selección de niveles');
+      this.addLabel(t('menu.levels_title'));
       const allLevels = getAllLevels();
       const completed = getCompletedLevels();
 
@@ -124,12 +125,12 @@ export class MenuScene extends Phaser.Scene {
         this.game.canvas.addEventListener('wheel', this._scrollHandler);
       }
 
-      this.makeButton(bx, H - 18, 'Volver', () => this.showScreen('main'));
+      this.makeButton(bx, H - 18, t('menu.back'), () => this.showScreen('main'));
     } else if (screen === 'editor') {
-      this.addLabel('editor de niveles');
-      this.makeButton(bx, 52, '+ Nuevo nivel', () => this.promptNewLevel(), 'accent');
+      this.addLabel(t('menu.editor_title'));
+      this.makeButton(bx, 52, t('menu.new_level'), () => this.promptNewLevel(), 'accent');
 
-      const sep = this.add.text(bx, 70, '— niveles existentes —', {
+      const sep = this.add.text(bx, 70, t('menu.existing'), {
         fontFamily: "'Press Start 2P', monospace", fontSize: '5px', color: '#446',
       }).setOrigin(0.5);
       this.dynamicGroup.add(sep);
@@ -176,20 +177,20 @@ export class MenuScene extends Phaser.Scene {
         this.game.canvas.addEventListener('wheel', this._scrollHandler);
       }
 
-      this.makeButton(bx, H - 18, '← Volver', () => this.showScreen('main'));
+      this.makeButton(bx, H - 18, t('menu.back_arrow'), () => this.showScreen('main'));
     } else if (screen === 'credits') {
-      this.addLabel('Creditos');
+      this.addLabel(t('menu.credits_title'));
 
       const PX = "'Press Start 2P', monospace";
       const team = [
-        { name: 'Luis Herrera',    role: 'Disenador Principal' },
-        { name: 'Brian Herrera',   role: 'Desarrollador Principal' },
-        { name: 'Lisett Castillo', role: 'Scrum Master' },
-        { name: 'Iara Baya',       role: 'Desarrolladora' },
-        { name: 'Jose Martinez',   role: 'Desarrollador' },
+        { name: 'Luis Herrera',    role: t('role.lead_designer') },
+        { name: 'Brian Herrera',   role: t('role.lead_developer') },
+        { name: 'Lisett Castillo', role: t('role.scrum_master') },
+        { name: 'Iara Baya',       role: t('role.developer_f') },
+        { name: 'Jose Martinez',   role: t('role.developer_m') },
       ];
 
-      const subtitle = this.add.text(bx, 46, 'Equipo de Desarrollo', {
+      const subtitle = this.add.text(bx, 46, t('menu.team'), {
         fontFamily: PX, fontSize: '6px', color: '#ffee88',
       }).setOrigin(0.5);
       this.dynamicGroup.add(subtitle);
@@ -234,11 +235,11 @@ export class MenuScene extends Phaser.Scene {
         this.game.canvas.addEventListener('wheel', this._scrollHandler);
       }
 
-      this.makeButton(bx, H - 18, '← Volver', () => this.showScreen('main'));
+      this.makeButton(bx, H - 18, t('menu.back_arrow'), () => this.showScreen('main'));
     } else if (screen === 'settings') {
-      this.addLabel('configuración');
+      this.addLabel(t('menu.settings_title'));
 
-      const panelW = 210, panelH = 100, panelY = 96;
+      const panelW = 210, panelH = 130, panelY = 100;
       const panel = this.add.nineslice(bx, panelY, 'settings_panel', undefined, panelW, panelH, 12, 12, 12, 12);
       this.dynamicGroup.add(panel);
 
@@ -264,10 +265,36 @@ export class MenuScene extends Phaser.Scene {
         });
       };
 
-      addAudioRow(panelY - 22, 'Musica',  () => Settings.getMusicVolume(), (v) => Settings.setMusicVolume(v));
-      addAudioRow(panelY + 22, 'Efectos', () => Settings.getSfxVolume(),   (v) => Settings.setSfxVolume(v));
+      addAudioRow(panelY - 32, t('menu.music'),  () => Settings.getMusicVolume(), (v) => Settings.setMusicVolume(v));
+      addAudioRow(panelY + 4, t('menu.sfx'), () => Settings.getSfxVolume(),   (v) => Settings.setSfxVolume(v));
 
-      this.makeButton(bx, H - 18, '← Volver', () => this.showScreen('main'));
+      const langY = panelY + 42;
+      const langLbl = this.add.text(left + 28, langY, t('menu.language'), {
+        fontFamily: "'Press Start 2P', monospace", fontSize: '7px', color: '#4a2810',
+      }).setOrigin(0, 0.5);
+      this.dynamicGroup.add(langLbl);
+
+      const curLang = Settings.getLanguage();
+      const makeToggle = (lx, code, label) => {
+        const isActive = curLang === code;
+        const bg = this.add.rectangle(lx, langY, 30, 14, isActive ? 0x8fce4f : 0x7a5a36)
+          .setStrokeStyle(2, isActive ? 0x4a8f1f : 0x4a2810);
+        const txt = this.add.text(lx, langY, label, {
+          fontFamily: "'Press Start 2P', monospace", fontSize: '7px', color: isActive ? '#1a3318' : '#c8a060',
+        }).setOrigin(0.5);
+        bg.setInteractive({ useHandCursor: true });
+        bg.on('pointerdown', () => {
+          Settings.setLanguage(code);
+          playSfx(this, 'ui_click', 0.15);
+          this.showScreen('settings');
+        });
+        this.dynamicGroup.add(bg);
+        this.dynamicGroup.add(txt);
+      };
+      makeToggle(right - 52, 'es', 'ES');
+      makeToggle(right - 18, 'en', 'EN');
+
+      this.makeButton(bx, H - 18, t('menu.back_arrow'), () => this.showScreen('main'));
     }
   }
 

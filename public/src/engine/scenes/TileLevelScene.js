@@ -158,7 +158,7 @@ export class TileLevelScene extends Phaser.Scene {
   showIdlePanel() {
     window.__showResult?.({
       state: 'idle',
-      message: this.missionText || '¡A jugar! Arma tu programa y presiona Ejecutar.',
+      message: this.missionText || (window.__t?.('level.idle') ?? '¡A jugar! Arma tu programa y presiona Ejecutar.'),
     });
   }
 
@@ -184,14 +184,14 @@ export class TileLevelScene extends Phaser.Scene {
     // "ayuda": muestra/oculta el camino guia amarillo (marcadores del path).
     const ayuda = document.createElement('button');
     ayuda.id = 'help-path-btn';
-    ayuda.textContent = 'ayuda';
+    ayuda.textContent = window.__t?.('level.help') ?? 'ayuda';
     Object.assign(ayuda.style, baseStyle);
     const syncAyuda = () => {
       const on = !!this.pathMarkers?.visible;
       ayuda.style.background = on ? '#ffe600' : '#cdbb6a';
       ayuda.style.filter = on ? 'none' : 'grayscale(0.5)';
       ayuda.style.opacity = on ? '1' : '0.85';
-      ayuda.title = on ? 'Ocultar camino guia' : 'Mostrar camino guia';
+      ayuda.title = on ? (window.__t?.('level.hide_path') ?? 'Ocultar camino guia') : (window.__t?.('level.show_path_title') ?? 'Mostrar camino guia');
     };
     ayuda.addEventListener('click', () => {
       window.__playUiSfx?.();
@@ -203,7 +203,7 @@ export class TileLevelScene extends Phaser.Scene {
     // "mostrar camino": repite la animacion del camino (sin disparar tutoriales).
     const btn = document.createElement('button');
     btn.id = 'repeat-path-btn';
-    btn.textContent = 'mostrar camino';
+    btn.textContent = window.__t?.('level.show_path') ?? 'mostrar camino';
     Object.assign(btn.style, { ...baseStyle, background: '#ffe600' });
     btn.addEventListener('mouseenter', () => btn.style.background = '#ffd000');
     btn.addEventListener('mouseleave', () => btn.style.background = '#ffe600');
@@ -464,11 +464,12 @@ export class TileLevelScene extends Phaser.Scene {
     const nextLevel = allLevels[currentIdx + 1];
 
     const pickupsLeft = this.pickups.size;
+    const _t = (k, fb) => window.__t?.(k) ?? fb;
     const message = isWin
-      ? '¡Lo lograste!'
+      ? _t('result.win', '¡Lo lograste!')
       : pickupsLeft > 0
-        ? 'Usa mas movimientos para llegar a todos los objetos.'
-        : 'Revisa tu programa.';
+        ? _t('result.lose_pickups', 'Usa mas movimientos para llegar a todos los objetos.')
+        : _t('result.lose_program', 'Revisa tu programa.');
 
     window.__showResult?.({
       state: isWin ? 'win' : 'lose',
@@ -572,7 +573,9 @@ export class TileLevelScene extends Phaser.Scene {
     if (!show) return;
     if (left !== this._lastPickupLeft) {
       this._lastPickupLeft = left;
-      const palabra = left === 1 ? 'Falta 1 fruta' : `Faltan ${left} frutas`;
+      const palabra = left === 1
+        ? (window.__t?.('result.pickup_one') ?? 'Falta 1 fruta')
+        : (window.__t?.('result.pickup_many', { count: left }) ?? `Faltan ${left} frutas`);
       this.pickupCounterText.setText(palabra);
       this._drawPickupCounterBg();
     }
