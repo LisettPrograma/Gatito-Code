@@ -91,16 +91,8 @@ export async function runForTutorial(scene, signal) {
   }
   logicaPanel?.classList.add('unlock-glow', 'unlock-layer');
   forBtn?.classList.add('unlock-glow', 'unlock-layer');
-<<<<<<< Updated upstream
   await showCard(t('for_tut.unlock'), signal);
-  forPanel?.classList.remove('unlock-glow', 'unlock-layer');
-=======
-  await showCard(
-    `${ico('estrella')} ¡Desbloqueaste el <b>FOR</b> (repetir)!<br><br>En vez de repetir a mano, le decís <b>qué</b> movimiento y <b>cuántas veces</b>.`,
-    signal,
-  );
   logicaPanel?.classList.remove('unlock-glow', 'unlock-layer');
->>>>>>> Stashed changes
   forBtn?.classList.remove('unlock-glow', 'unlock-layer');
   if (dirsPanel) {
     dirsPanel.style.position = '';

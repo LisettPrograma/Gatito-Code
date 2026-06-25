@@ -315,35 +315,6 @@ function initLogicaTabs() {
   logicaSwitchEl?.querySelectorAll('.logica-tab').forEach(tab => {
     tab.addEventListener('click', () => activarLogica(tab.dataset.logicaTab));
   });
-<<<<<<< Updated upstream
-  toggles.forEach(btn => {
-    btn.addEventListener('click', () => {
-      uiSfx();
-      const panel = document.getElementById(btn.dataset.togglePanel);
-      if (!panel) return;
-      const plegado = panel.classList.toggle('plegado');
-      btn.setAttribute('aria-expanded', String(!plegado));
-      // Acordeón: al abrir uno, se cierran los demás para que no queden todos abiertos.
-      if (!plegado) {
-        toggles.forEach(otro => {
-          if (otro === btn) return;
-          const otroPanel = document.getElementById(otro.dataset.togglePanel);
-          if (!otroPanel || otroPanel.classList.contains('plegado')) return;
-          otroPanel.classList.add('plegado');
-          otro.setAttribute('aria-expanded', 'false');
-        });
-      }
-    });
-  });
-  if (window.innerWidth < 768) {
-    ['queue-func1', 'queue-for', 'queue-if-rule'].forEach(id => {
-      const panel = document.getElementById(id);
-      if (panel && !panel.classList.contains('plegado')) {
-        panel.classList.add('plegado');
-        const btn = panel.querySelector('.panel-toggle');
-        if (btn) btn.setAttribute('aria-expanded', 'false');
-      }
-=======
   actualizarLogica();
 }
 
@@ -374,7 +345,6 @@ function actualizarLogica() {
       const k = tab.dataset.logicaTab;
       tab.style.display = logicaDisponible[k] ? '' : 'none';
       tab.classList.toggle('active', k === logicaActiva);
->>>>>>> Stashed changes
     });
   }
 

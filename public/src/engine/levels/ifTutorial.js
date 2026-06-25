@@ -66,11 +66,6 @@ export async function runIfTutorial(scene, signal) {
   document.body.appendChild(backdrop);
 
   window.__setIfPanel?.(true);
-<<<<<<< Updated upstream
-  ifPanel?.classList.add('unlock-glow', 'unlock-layer');
-  await showCard(t('if_tut.unlock'), signal);
-  ifPanel?.classList.remove('unlock-glow', 'unlock-layer');
-=======
   // Activar la pestaña SI dentro del panel de logica combinado.
   document.querySelector('.logica-tab[data-logica-tab="if"]')?.click();
   const logicaPanel = document.getElementById('queue-logica');
@@ -79,12 +74,8 @@ export async function runIfTutorial(scene, signal) {
     logicaPanel.style.zIndex = '9002';
   }
   logicaPanel?.classList.add('unlock-glow', 'unlock-layer');
-  await showCard(
-    `${ico('estrella')} ¡Desbloqueaste el <b>IF</b>!<br><br><b>SI</b> pasa algo, <b>ENTONCES</b> Gatito hace otra cosa.`,
-    signal,
-  );
+  await showCard(t('if_tut.unlock'), signal);
   logicaPanel?.classList.remove('unlock-glow', 'unlock-layer');
->>>>>>> Stashed changes
   if (signal?.cancelled) return;
 
   // 3a. "SI pasa" → roca adelante
