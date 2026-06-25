@@ -65,11 +65,11 @@ export class CustomScene extends TileLevelScene {
         document.getElementById('level-dialog-box')?.classList.remove('intro-highlight');
         document.getElementById('if-condition-select')?.classList.remove('intro-highlight');
         document.getElementById('if-action-select')?.classList.remove('intro-highlight');
-        const ifPanel = document.getElementById('queue-if-rule');
-        if (ifPanel) {
-          ifPanel.classList.remove('unlock-glow', 'unlock-layer');
-          ifPanel.style.position = '';
-          ifPanel.style.zIndex = '';
+        const logicaPanel = document.getElementById('queue-logica');
+        if (logicaPanel) {
+          logicaPanel.classList.remove('unlock-glow', 'unlock-layer');
+          logicaPanel.style.position = '';
+          logicaPanel.style.zIndex = '';
         }
       });
       return;
@@ -79,6 +79,10 @@ export class CustomScene extends TileLevelScene {
       window.__setForPanel?.(false);
       window.__setIfPanel?.(false);
       lockPanels();
+      // Nivel 9: el panel FOR vive en la columna izquierda (debajo del D-pad);
+      // los mensajes del tutorial se reubican en el espacio sobrante via CSS
+      // (body.level-for, ver panels.css).
+      this._moveForPanelToLeft();
 
       // Mismo patron de cancelacion que el tutorial del IF.
       this._forSignal = { cancelled: false, _cbs: [], _onCancel(cb) { this._cbs.push(cb); } };
@@ -87,6 +91,7 @@ export class CustomScene extends TileLevelScene {
         this._forSignal._cbs.forEach(cb => cb());
         this._forSignal._cbs = [];
         this._tutorialActive = false;
+        this._restoreForPanel();
         unlockPanels();
         document.getElementById('intro-card')?.remove();
         document.getElementById('panel-backdrop')?.remove();
@@ -94,11 +99,11 @@ export class CustomScene extends TileLevelScene {
         document.getElementById('for-count-select')?.classList.remove('intro-highlight');
         document.getElementById('slots-for')?.classList.remove('intro-highlight');
         document.querySelector('[data-dir="for"]')?.classList.remove('unlock-glow', 'unlock-layer');
-        const forPanel = document.getElementById('queue-for');
-        if (forPanel) {
-          forPanel.classList.remove('unlock-glow', 'unlock-layer');
-          forPanel.style.position = '';
-          forPanel.style.zIndex = '';
+        const logicaPanel = document.getElementById('queue-logica');
+        if (logicaPanel) {
+          logicaPanel.classList.remove('unlock-glow', 'unlock-layer');
+          logicaPanel.style.position = '';
+          logicaPanel.style.zIndex = '';
         }
         const dirsPanel = document.getElementById('dirs');
         if (dirsPanel) {
@@ -151,5 +156,27 @@ export class CustomScene extends TileLevelScene {
   showIdlePanel() {
     if (this._tutorialActive && (this.levelKey === 'if' || this.levelKey === 'for')) return;
     super.showIdlePanel();
+  }
+
+  // Nivel 9 (FOR): reubica el panel FOR a la columna izquierda (#panels), debajo
+  // del D-pad. Guarda su posicion original para devolverlo al salir del nivel.
+  _moveForPanelToLeft() {
+    const logicaPanel = document.getElementById('queue-logica');
+    const leftCol = document.getElementById('panels');
+    if (!logicaPanel || !leftCol) return;
+    this._forPanelHome = { parent: logicaPanel.parentNode, next: logicaPanel.nextSibling };
+    leftCol.appendChild(logicaPanel);
+    document.body.classList.add('level-for');
+  }
+
+  // Devuelve el panel de logica a su contenedor original (#right-panels) en la
+  // misma posicion en la que estaba, para no romper el layout de otros niveles.
+  _restoreForPanel() {
+    document.body.classList.remove('level-for', 'for-open');
+    const logicaPanel = document.getElementById('queue-logica');
+    if (logicaPanel && this._forPanelHome?.parent) {
+      this._forPanelHome.parent.insertBefore(logicaPanel, this._forPanelHome.next);
+    }
+    this._forPanelHome = null;
   }
 }
