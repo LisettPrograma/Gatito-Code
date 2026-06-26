@@ -139,7 +139,7 @@ export class TileLevelScene extends Phaser.Scene {
     this.drawGrid();
     this.gridVisible = false;
     this.grid.setVisible(false);
-    this.crosshair = this.add.rectangle(0, 0, TILE, TILE).setStrokeStyle(1, 0xffcc33, 0.8).setOrigin(0).setDepth(99).setScrollFactor(0);
+    this.crosshair = this.add.rectangle(0, 0, TILE, TILE).setStrokeStyle(1, 0xffcc33, 0.8).setOrigin(0).setDepth(8000);
 
     this.keys.G.on('down', () => { this.gridVisible = !this.gridVisible; this.grid.setVisible(this.gridVisible); });
 
