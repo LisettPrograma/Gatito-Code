@@ -246,7 +246,7 @@ export class TileLevelScene extends Phaser.Scene {
   /** Highlight walkable tiles when the level uses the `path` layer. */
   drawPathMarkers(pathFlat) {
     if (!pathFlat || !pathFlat.some(v => v !== 0)) return;
-    const g = this.add.graphics().setDepth(15);
+    const g = this.add.graphics().setDepth(4000);
     g.lineStyle(1, 0xffee88, 0.65);
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {

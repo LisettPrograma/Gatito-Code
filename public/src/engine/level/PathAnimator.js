@@ -46,7 +46,7 @@ export function animatePath(scene, { delay = 300, duration = 700, color = 0xffe6
       const rect = scene.add.rectangle(
         tx * TILE + TILE / 2, ty * TILE + TILE / 2,
         TILE, TILE, color
-      ).setAlpha(alpha).setDepth(50);
+      ).setAlpha(alpha).setDepth(4000);
       scene.tweens.add({
         targets: rect, alpha: 0, duration, ease: 'Sine.easeOut',
         onComplete: () => {
