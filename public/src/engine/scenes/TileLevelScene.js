@@ -166,7 +166,13 @@ export class TileLevelScene extends Phaser.Scene {
   }
 
   _runPathAnimation() {
-    animatePath(this, { sound: false, onComplete: this.onPathAnimationComplete });
+    const btn = document.getElementById('repeat-path-btn');
+    if (btn) btn.disabled = true;
+    const origComplete = this.onPathAnimationComplete;
+    animatePath(this, { sound: false, onComplete: () => {
+      if (btn) btn.disabled = false;
+      origComplete?.();
+    }});
   }
 
   _addRepeatPathButton() {
@@ -206,6 +212,7 @@ export class TileLevelScene extends Phaser.Scene {
     // "mostrar camino": repite la animacion del camino (sin disparar tutoriales).
     const btn = document.createElement('button');
     btn.id = 'repeat-path-btn';
+    btn.disabled = true;
     btn.textContent = window.__t?.('level.show_path') ?? 'mostrar camino';
     Object.assign(btn.style, { ...baseStyle, background: '#ffe600' });
     btn.addEventListener('mouseenter', () => btn.style.background = '#ffd000');
