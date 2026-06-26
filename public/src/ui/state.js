@@ -8,7 +8,7 @@ export const ARROW = {
 };
 const _LABEL_FALLBACK = {
   up: 'move up', down: 'move down', left: 'move left', right: 'move right',
-  func1: 'funcion 1',
+  func1: 'funcion',
   for: 'repetir',
   jump: 'jump',
   jump_up: 'jump up', jump_down: 'jump down', jump_left: 'jump left', jump_right: 'jump right',

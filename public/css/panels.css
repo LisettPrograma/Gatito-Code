@@ -11,6 +11,7 @@
 #right-panels {
   display: none;
   flex-direction: row;
+  align-items: flex-start;
   gap: 4px;
   min-width: 0;
   width: 100%;
@@ -137,6 +138,7 @@
   cursor: pointer;
   transition: background .12s ease, color .12s ease;
   line-height: 1.2;
+  min-height: 44px;
 }
 .target-opt.active {
   background: rgba(255,200,80,.35) !important;
@@ -154,7 +156,6 @@
   font-size: 10px;
   border-bottom: 2px solid rgba(90,58,26,.15);
 }
-
 /* ─── Direction & Queue buttons ─── */
 .sprout-panel button {
   background: none !important;
@@ -171,6 +172,9 @@
   touch-action: none;
   transition: opacity var(--transition-fast), transform var(--transition-fast), filter var(--transition-med);
   justify-content: flex-start;
+}
+#queue-for-content #clear-for {
+  padding: 0 !important; 
 }
 .sprout-panel button:hover:not(:disabled) {
   opacity: .85;
@@ -353,24 +357,87 @@
   padding: 2px !important;
 }
 
-/* ─── Panel de logica combinado (Funcion 1 / For / Si) ─── */
+/* ─── Panel de logica combinado (Funcion / For / Si) ─── */
+/* Base (mobile/tablet): el wrapper .logica-stack se ve como 1 panel unificado
+   con tabs (F1/FOR/SI). Los 3 .panel-plegable adentro son sólo contenedores
+   de contenido: sin background ni border. Solo el panel del tab activo es
+   visible. En desktop (>=1100px) se invierte: cada panel es un .sprout-panel
+   independiente y colapsable, y el header con tabs se oculta. */
+.logica-stack {
+  background:
+    linear-gradient(170deg, #dfc99e 0%, #c8a87a 40%, #b89564 100%);
+  background-color: #c8a87a;
+  border-radius: 6px;
+  box-shadow:
+    0 4px 20px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -1px 0 rgba(0,0,0,.1);
+  position: relative;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0;
+  overflow: hidden;
+  width: 100%;
+}
+.logica-stack::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 2px solid rgba(90,58,26,.18);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.logica-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 10px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid rgba(90,58,26,.15);
+}
+.logica-header h3 {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
 #queue-logica .logica-switch {
   flex-wrap: nowrap;
 }
-.logica-cuerpo {
-  display: none;
-  flex-direction: column;
+#queue-logica .logica-switch .logica-tab {
+  flex: 1;
 }
-.logica-cuerpo.logica-activo {
+.logica-stack .panel-plegable {
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  width: 100%;
+  position: static;
+  overflow: visible;
+}
+.logica-stack .panel-plegable::before { display: none; }
+.logica-stack .panel-plegable:hover { box-shadow: none; }
+.logica-stack .panel-toggle { display: none; }
+.logica-stack .panel-toggle-icon { display: none; }
+.logica-stack .panel-plegable:not([data-activo-mobile="true"]) {
+  display: none;
+}
+.logica-stack .panel-cuerpo {
   display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 #queue-logica[data-activa="func1"] #logica-titulo { color: #4b688a; }
 #queue-logica[data-activa="for"]   #logica-titulo { color: #7a4a12; }
 #queue-logica[data-activa="if"]    #logica-titulo { color: #5a7f3a; }
 
 /* ─── Sub-switch IF-1 / IF-2 dentro del panel SI ─── */
-/* Base (mobile): el switch es visible y solo se muestra el if-block activo.
-   En desktop (≥1100px) se oculta el switch y se muestran ambos ifs. */
+/* Base (mobile/tablet): visible y solo se muestra el if-block activo.
+   En desktop (>=1100px) se oculta y se muestran ambos ifs. */
 #queue-if-rule .if-tab-switch {
   margin-bottom: 6px;
   align-self: stretch;
@@ -382,7 +449,10 @@
 .if-block.if-block-active {
   display: flex;
 }
-#queue-if-rule[data-activa-if="if-1"] .if-rule-sep, #queue-if-rule[data-activa-if="if-2"] .if-rule-sep { display: none; }
+#queue-if-content[data-activa-if="if-1"] .if-rule-sep,
+#queue-if-content[data-activa-if="if-2"] .if-rule-sep {
+  display: none;
+}
 
 .target-opt[data-target="for"],
 .sprout-panel button[data-dir="for"] {
@@ -410,6 +480,20 @@
 }
 
 /* ─── IF / FOR selects (unificado, sin duplicaciones) ─── */
+.for-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.for-select-row .if-select-label {
+  margin: 0;
+  white-space: nowrap;
+}
+.for-select-row .if-select {
+  margin-bottom: 0;
+  flex: 1;
+}
 .if-select-label {
   font-size: 11px;
   color: rgba(90,58,26,.85);
@@ -713,10 +797,15 @@ body.for-open #intro-card.icard-out {
     padding-bottom: 6px;
     font-size: 14px;
   }
-  /* D-pad: lista vertical en tablet */
+  /* D-pad: grilla vertical en tablet con f1/for apilados horizontalmente */
   #dirs {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "header header"
+      "up     down"
+      "left   right"
+      "func1  forbtn";
     gap: 2px;
     padding: 14px 16px;
   }
@@ -726,12 +815,9 @@ body.for-open #intro-card.icard-out {
     min-height: 44px;
     padding: 10px 8px !important;
   }
-  /* Labels visible */
+  /* Labels hidden en tablet para la grilla compacta */
   .dir-label {
-    display: inline;
-  }
-  .queue-label {
-    display: inline;
+    display: none;
   }
   /* Slots restaurados */
   .sprout-panel .slot {
@@ -741,7 +827,8 @@ body.for-open #intro-card.icard-out {
   }
   /* Queue actions: display contents (columna) */
   .queue-actions {
-    display: contents;
+    /* display: contents; */
+    /* flex-direction: column; */
   }
   /* Intro card FOR: no necesita override en tablet+ */
   body.for-open #intro-card {
@@ -756,13 +843,30 @@ body.for-open #intro-card.icard-out {
 
 /* ─── Desktop (≥1100px): tamaños originales ─── */
 @media (min-width: 1100px) {
+  /* En desktop volvemos a mostrar la lista vertical de botones de direccion */
+  #dirs {
+    display: flex;
+    flex-direction: column;
+  }
+  .queue-actions{
+    flex-direction: column;
+    align-items:flex-start;
+  }
   .if-rule-sep { display: block; }
   #panels, #right-panels, #editor-panel {
-    min-width: 220px;
-    width: auto;
+    /* min-width: 220px;
+    width: auto; */
+    flex-grow: 0;
+    flex-basis: 220px;
+  }
+  .queue-label {
+    display: inline;
+  }
+  .dir-label {
+    display: inline;
   }
   .sprout-panel {
-    width: 200px;
+    /* width: 200px; */
   }
   .sprout-panel button {
     padding: 4px 2px !important;
@@ -791,4 +895,110 @@ body.for-open #intro-card.icard-out {
   #queue-if-rule .if-rule-sep {
     display: block;
   }
+
+  /* ─── Desktop: acordeon de paneles colapsables ─── */
+  /* En desktop el .logica-stack deja de ser un panel unificado: cada
+     .panel-plegable es un .sprout-panel independiente con su boton colapsar.
+     El header con tabs (F1/FOR/SI) se oculta, y el sub-switch IF-1/IF-2
+     tambien (los dos ifs se muestran siempre apilados). */
+  .logica-stack {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    /* width: 200px; */
+    padding: 0;
+    gap: 12px;
+    overflow: visible;
+  }
+  .logica-stack::before { display: none; }
+  .logica-header { display: none; }
+  /* El :not([data-activo-mobile="true"]) en la regla base tiene specificity
+     (0,3,0).  Repetirlo aquí sube el override a (0,3,1) y gana en desktop. */
+  body .logica-stack .panel-plegable,
+  body .logica-stack .panel-plegable:not([data-activo-mobile="true"]) {
+    display: flex;
+    background:
+      linear-gradient(170deg, #dfc99e 0%, #c8a87a 40%, #b89564 100%);
+    background-color: #c8a87a;
+    border: none;
+    border-radius: 6px;
+    box-shadow:
+      0 4px 20px rgba(0,0,0,.45),
+      inset 0 1px 0 rgba(255,255,255,.25),
+      inset 0 -1px 0 rgba(0,0,0,.1);
+    padding: 6px 8px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+  }
+  .logica-stack .panel-plegable::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 2px solid rgba(90,58,26,.18);
+    border-radius: 4px;
+    pointer-events: none;
+    display: block;
+  }
+  .logica-stack .panel-toggle {
+    display: flex;
+    width: 100%;
+    min-height: 28px;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    padding: 0 0 8px !important;
+    font-family: 'SproutPixel', monospace !important;
+    font-size: 16px !important;
+    text-transform: uppercase;
+    line-height: 1;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  #queue-func1 .panel-toggle {
+    color: #4b688a !important;
+    border-bottom: 1px solid rgba(75,104,138,.2);
+  }
+  #queue-for .panel-toggle {
+    color: #7a4a12 !important;
+    border-bottom: 1px solid rgba(122,74,18,.22);
+  }
+  #queue-if-rule .panel-toggle {
+    color: #5a7f3a !important;
+    border-bottom: 1px solid rgba(90,127,58,.22);
+  }
+  .logica-stack .panel-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: rgba(90,58,26,.76);
+    transition: transform .16s ease;
+  }
+  .logica-stack .panel-cuerpo {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: 600px;
+    opacity: 1;
+    transition: max-height .18s ease, opacity .14s ease;
+    margin-top: 6px;
+  }
+  .logica-stack .panel-plegable.plegado .panel-cuerpo {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .logica-stack .panel-plegable.plegado .panel-toggle {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom-color: transparent !important;
+  }
+  .logica-stack .panel-plegable.plegado .panel-toggle-icon {
+    transform: rotate(-90deg);
+  }
+  /* En desktop los 3 paneles siempre son visibles (plegados o desplegados);
+     la disponibilidad solo rige en mobile/tablet via tabs. */
 }

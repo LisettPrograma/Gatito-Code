@@ -184,8 +184,8 @@ export class TileLevelScene extends Phaser.Scene {
     const wrap = document.createElement('div');
     wrap.id = 'path-buttons';
     Object.assign(wrap.style, {
-      position: 'absolute', bottom: '28px', right: '16px',
-      display: 'flex', gap: '6px', alignItems: 'center',
+      position: 'absolute', bottom: '0px', right: '16px',
+      display: 'flex', gap: '6px', alignItems: 'stretch',
     });
 
     const baseStyle = {

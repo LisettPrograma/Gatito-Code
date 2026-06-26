@@ -375,6 +375,7 @@ body.app-loading #boot-splash {
     flex-direction: column;
     gap: 8px;
     flex: 1;
+    max-width: 250px;
   }
   #panels {
     flex: none;

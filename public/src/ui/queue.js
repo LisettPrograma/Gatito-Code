@@ -18,7 +18,7 @@ let trashZoneEl;
 let activeTarget = 'main';
 const uiSfx = (key) => window.__playUiSfx?.(key);
 
-// Panel de logica combinado: Funcion 1 / For / Si comparten un solo panel con
+// Panel de logica combinado: Funcion / For / Si comparten un solo panel con
 // pestañas (como el switch del panel Movement). `logicaDisponible` indica que
 // pestañas existen en el nivel actual; `logicaActiva` cual se muestra.
 let logicaPanelEl;
@@ -30,8 +30,17 @@ const logicaDisponible = { func1: true, for: false, if: true };
 let logicaActiva = 'func1';
 let ifActiva = 'if-1';
 const LOGICA_ORDEN = ['func1', 'for', 'if'];
-const LOGICA_TITULOS = { func1: 'Funcion 1', for: 'For', if: 'Si' };
+const LOGICA_TITULOS = { func1: 'Funcion', for: 'For', if: 'Si' };
 const LOGICA_IDS = { func1: 'queue-func1', for: 'queue-for', if: 'queue-if-rule' };
+
+// A partir del nombre de tab (func1/for/if) devuelve el id del panel ple-
+// gable correspondiente, o null si no hay panel visible (caso 'main').
+function tabToPanelId(tab) {
+  if (tab === 'func1') return 'queue-func1';
+  if (tab === 'for')   return 'queue-for';
+  if (tab === 'if')    return 'queue-if-rule';
+  return null;
+}
 
 export function initQueue() {
   slotsEl = document.getElementById('slots');
@@ -79,6 +88,7 @@ export function initQueue() {
   initForPanel();
   initLogicaTabs();
   initIfTabSwitch();
+  initPanelToggles();
 
   dirsPanel.querySelectorAll('button[data-dir]:not([data-dir="jump"])').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -170,7 +180,7 @@ export function initQueue() {
     setRunning(GYM.running);   // re-aplica el estado disabled de los controles
   };
 
-  // Limpia todas las colas del programa (principal, funcion 1, for, condiciones).
+  // Limpia todas las colas del programa (principal, funcion, for, condiciones).
   // Se llama al cambiar de nivel para no arrastrar movimientos al siguiente.
   window.__clearProgram = () => {
     GYM.queue.length = 0;
@@ -199,7 +209,9 @@ window.__setPanels = visible => {
     setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
   };
 
-  // Muestra/oculta la pestaña FUNCION 1 dentro del panel de logica.
+  window.__abrirPanelLogica = abrirPanelLogica;
+
+  // Muestra/oculta la pestaña FUNCION dentro del panel de logica.
   window.__setFunc1Panel = visible => {
     logicaDisponible.func1 = !!visible;
     actualizarLogica();
@@ -252,6 +264,10 @@ function activarTarget(target) {
   if (func1Btn) func1Btn.disabled = (target === 'func1');
   const forBtn = dirsPanel.querySelector('[data-dir="for"]');
   if (forBtn) forBtn.disabled = (target === 'for');
+
+  if (target === 'func1' || target === 'for') {
+    abrirPanelLogica(target);
+  }
 }
 
 function renderQueue(queue, container) {
@@ -351,7 +367,9 @@ export function activarLogica(which) {
 }
 
 // Sincroniza el panel de logica con `logicaDisponible`/`logicaActiva`:
-// muestra/oculta el panel y las pestañas, marca la activa y enseña su contenido.
+// marca el panel activo y la disponibilidad de cada uno. En mobile/tablet el
+// CSS muestra solo el panel con `data-activo-mobile="true"`; en desktop los 3
+// paneles quedan siempre visibles y el colapso lo maneja `.plegado`.
 function actualizarLogica() {
   if (!logicaPanelEl) return;
   // Si la pestaña activa ya no esta disponible, saltar a la primera disponible.
@@ -363,6 +381,14 @@ function actualizarLogica() {
   logicaPanelEl.style.display = disponibles.length ? 'flex' : 'none';
   logicaPanelEl.dataset.activa = logicaActiva;
 
+  // Marcar el panel activo (mobile/tablet) y la disponibilidad de cada uno.
+  LOGICA_ORDEN.forEach(k => {
+    const el = document.getElementById(LOGICA_IDS[k]);
+    if (!el) return;
+    el.dataset.disponible = String(logicaDisponible[k]);
+    el.dataset.activoMobile = String(k === logicaActiva && logicaDisponible[k]);
+  });
+
   // El switch solo tiene sentido si hay mas de una pestaña.
   if (logicaSwitchEl) {
     logicaSwitchEl.style.display = disponibles.length > 1 ? 'flex' : 'none';
@@ -373,20 +399,16 @@ function actualizarLogica() {
     });
   }
 
-  // Mostrar solo el contenido de la pestaña activa.
-  LOGICA_ORDEN.forEach(k => {
-    const el = document.getElementById(LOGICA_IDS[k]);
-    if (el) el.classList.toggle('logica-activo', k === logicaActiva && logicaDisponible[k]);
-  });
-
   if (logicaTituloEl) logicaTituloEl.textContent = LOGICA_TITULOS[logicaActiva] || '';
 }
 
-// Sub-switch IF-1 / IF-2 dentro del panel SI. En mobile solo se ve uno a la
-// vez; en desktop (>=1100px) el CSS oculta el switch y muestra ambos ifs.
+// Sub-switch IF-1 / IF-2 dentro del panel SI. En mobile/tablet solo se ve uno
+// a la vez; en desktop (>=1100px) el CSS oculta el switch y muestra ambos ifs.
 function initIfTabSwitch() {
   ifTabSwitchEl = document.getElementById('if-tab-switch');
-  ifRuleEl = document.getElementById('queue-if-rule');
+  // El padre comun del if-tab-switch y los if-block es #queue-if-content
+  // (el .panel-cuerpo del panel SI), no #queue-if-rule.
+  ifRuleEl = ifTabSwitchEl?.closest('.panel-cuerpo') || document.getElementById('queue-if-content');
   ifTabSwitchEl?.querySelectorAll('.if-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const k = tab.dataset.ifTab;
@@ -406,6 +428,62 @@ function actualizarIfActiva() {
   });
   ifRuleEl.querySelectorAll('.if-block').forEach(block => {
     block.classList.toggle('if-block-active', block.dataset.ifBlock === ifActiva);
+  });
+}
+
+// Acordeon de paneles colapsables (solo util en desktop >=1100px; en mobile
+// los botones estan ocultos via CSS). Al abrir uno se cierran los demas.
+function initPanelToggles() {
+  const toggles = document.querySelectorAll('.panel-toggle');
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById(btn.dataset.togglePanel);
+      if (!panel) return;
+      const fuePlegado = panel.classList.contains('plegado');
+      if (fuePlegado) {
+        // Acordeon: al abrir uno, cerrar los demas que estuvieran expandidos.
+        toggles.forEach(otro => {
+          if (otro === btn) return;
+          const otroPanel = document.getElementById(otro.dataset.togglePanel);
+          if (!otroPanel || otroPanel.classList.contains('plegado')) return;
+          otroPanel.classList.add('plegado');
+          otro.setAttribute('aria-expanded', 'false');
+        });
+      }
+      panel.classList.toggle('plegado');
+      btn.setAttribute('aria-expanded', String(fuePlegado));
+    });
+  });
+}
+
+// Helper para que los tutoriales puedan abrir un panel logico en ambos view-
+// ports. En mobile/tablet dispara el tab del F1/FOR/SI switch; en desktop
+// (donde el switch esta oculto) quita el .plegado del panel correspondiente.
+export function abrirPanelLogica(tab) {
+  if (!logicaDisponible[tab]) return;
+  const tabBtn = logicaSwitchEl?.querySelector(`.logica-tab[data-logica-tab="${tab}"]`);
+  // Si el boton del switch es visible (mobile/tablet), usarlo.
+  if (tabBtn && tabBtn.offsetParent !== null) {
+    tabBtn.click();
+    return;
+  }
+  // Si no, estamos en desktop: abrir el panel correspondiente.
+  const panelId = tabToPanelId(tab);
+  const panel = panelId && document.getElementById(panelId);
+  if (!panel) return;
+  if (panel.classList.contains('plegado')) {
+    panel.classList.remove('plegado');
+    const btn = panel.querySelector('.panel-toggle');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+  }
+  // Acordeon: cerrar los demas que estuvieran expandidos.
+  document.querySelectorAll('#queue-logica .panel-plegable').forEach(otro => {
+    if (otro === panel) return;
+    if (!otro.classList.contains('plegado')) {
+      otro.classList.add('plegado');
+      const btn = otro.querySelector('.panel-toggle');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
   });
 }
 
@@ -555,7 +633,7 @@ function mostrarTooltipRecursion(dir, queueId) {
   const rect = panel.getBoundingClientRect();
   const key = `recursion.${queueId}`;
   const fallback = queueId === 'func1'
-    ? 'No podes poner Funcion 1 dentro de si misma, eso generaria un bucle infinito.'
+    ? 'No podes poner Funcion dentro de si misma, eso generaria un bucle infinito.'
     : 'No podes poner FOR dentro de si mismo, eso generaria un bucle infinito.';
   const tr = window.__t?.(key);
   const text = (tr && tr !== key) ? tr : fallback;
