@@ -71,7 +71,7 @@ export async function runForTutorial(scene, signal) {
 
   window.__setForPanel?.(true);
   // Activar la pestaña FOR dentro del panel de logica combinado.
-  click('.logica-tab[data-logica-tab="for"]');
+  window.__abrirPanelLogica?.('for');
   const logicaPanel = document.getElementById('queue-logica');
   if (logicaPanel) {
     logicaPanel.style.position = 'relative';

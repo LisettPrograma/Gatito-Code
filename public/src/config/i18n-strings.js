@@ -21,7 +21,7 @@ export const STRINGS = {
     'dir.down': 'mover abajo',
     'dir.left': 'mover izq.',
     'dir.right': 'mover der.',
-    'dir.func1': 'funcion 1',
+    'dir.func1': 'funcion',
     'dir.for': 'repetir',
     'dir.jump': 'saltar',
     'dir.jump_up': 'saltar arriba',
@@ -31,17 +31,17 @@ export const STRINGS = {
 
     // ── Paneles ──
     'panel.movement': 'Movimiento',
-    'panel.switch_title': 'Cambiar destino: Programa o Funcion 1',
+    'panel.switch_title': 'Cambiar destino: Programa o Funcion',
     'panel.program': 'Programa',
     'panel.f1': 'F1',
     'panel.for': 'FOR',
     'panel.program_max': 'Programa (max 5)',
-    'panel.func1_title': 'FUNCION 1',
+    'panel.func1_title': 'FUNCION',
     'panel.for_title': 'FOR',
     'panel.if_title': 'SI',
 
     // ── Botones de direccion ──
-    'btn.func1': 'FUNCION 1',
+    'btn.func1': 'FUNCION',
     'btn.for': 'REPETIR',
 
     // ── Botones de accion ──
@@ -219,7 +219,7 @@ export const STRINGS = {
     'nivel3.almost': '¡Casi! Agrega mas movimientos para juntar todo. Volve a intentarlo 💪',
     'nivel3.good_try': '¡Buen intento! Ajusta tu programa y proba de nuevo 💪',
     'nivel3.unlock': 'Ahora desbloqueaste la Funcion {ico_estrella}<br><br>Con este panel vas a poder tener movimientos extras…',
-    'nivel3.f1_explain': 'Si tocas <b>F1</b> y apretas un movimiento, se vera en el panel de la Funcion 1.',
+    'nivel3.f1_explain': 'Si tocas <b>F1</b> y apretas un movimiento, se vera en el panel de la Funcion.',
     'nivel3.problem': 'El panel principal solo permite <b>5</b> movimientos… pero este camino necesita <b>{count}</b>. {ico_pregunta}',
     'nivel3.func_slot': 'Ya usamos 4 slots. En el ultimo metemos la <b>Funcion ƒ</b>, que nos da movimientos extra.',
     'nivel3.switch_f1': 'Ahora cambiamos a <b>F1</b> para cargar los movimientos extra de la funcion.',
@@ -252,7 +252,7 @@ export const STRINGS = {
     'custom.default_mission': 'Mision: Recolecta todos los items en el nivel {key}.',
     'custom.if.welcome': 'Nuevo concepto: IF. SI sucede una condicion, Gatito hace otra cosa. En este nivel, si hay una roca adelante, la salta.',
     'custom.if.mission': 'Mision: Activa SI ROCA SALTAR y usa mover a la derecha para cruzar la linea de piedras.',
-    'custom.si_2.welcome': 'Este tramo repite la misma idea dos veces. Usa FUNCION 1 como bloque reutilizable junto con SI ROCA SALTAR.',
+    'custom.si_2.welcome': 'Este tramo repite la misma idea dos veces. Usa FUNCION como bloque reutilizable junto con SI ROCA SALTAR.',
     'custom.si_2.mission': 'Mision: Repite una mini-rutina con F1 para juntar todo usando SI ROCA SALTAR.',
     'custom.jardin_tutorial.welcome': 'Bienvenido al jardin. Recorre el camino con los movimientos basicos y recolecta todo lo que encuentres.',
     'custom.jardin_tutorial.mission': 'Mision: Usa los movimientos para recorrer el jardin y recolectar todos los items.',
@@ -272,7 +272,7 @@ export const STRINGS = {
     'bosque_prueba.welcome': 'Sobrevive al frio bosque.',
     'bosque_floral.mission': 'Recoge las flores del bosque encantado',
     'bosque_floral.welcome': '¡Bienvenido al Bosque Floral! Usa la Funcion para recorrer el sendero.',
-    'recursion.func1': '¡Ojo! No podes poner Funcion 1 dentro de si misma, eso generaria un bucle infinito.',
+    'recursion.func1': '¡Ojo! No podes poner Funcion dentro de si misma, eso generaria un bucle infinito.',
     'recursion.for': '¡Ojo! No podes poner FOR dentro de si mismo, eso generaria un bucle infinito.',
 
     // ── Nombres de niveles ──

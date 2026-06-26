@@ -67,7 +67,7 @@ export async function runIfTutorial(scene, signal) {
 
   window.__setIfPanel?.(true);
   // Activar la pestaña SI dentro del panel de logica combinado.
-  document.querySelector('.logica-tab[data-logica-tab="if"]')?.click();
+  window.__abrirPanelLogica?.('if');
   const logicaPanel = document.getElementById('queue-logica');
   if (logicaPanel) {
     logicaPanel.style.position = 'relative';

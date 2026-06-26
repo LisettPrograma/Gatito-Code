@@ -159,7 +159,7 @@ describe('engine/program/ProgramExecutor.js - IF con roca', () => {
     expect(context.llamadas).toEqual(['jump:right', 'complete']);
   });
 
-  it('tambien evalua la regla automatica dentro de Funcion 1', async () => {
+  it('tambien evalua la regla automatica dentro de Funcion', async () => {
     const context = crearContexto(true);
 
     await executeProgram(['func1'], context, {
@@ -279,7 +279,7 @@ describe('engine/program/ProgramExecutor.js - reglas SI', () => {
     expect(calls).toEqual(['step:right']);
   });
 
-  it('la regla SI tambien se aplica dentro de FUNCION 1', async () => {
+  it('la regla SI tambien se aplica dentro de FUNCION', async () => {
     const { calls, context } = makeContext(true);
 
     await executeProgram(['func1'], context, {

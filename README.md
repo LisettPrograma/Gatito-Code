@@ -107,7 +107,7 @@ gatito-codev2/
 │   │   │   │   ├── GymScene.js          # Nivel tutorial basico
 │   │   │   │   ├── MainScene.js         # Nivel principal
 │   │   │   │   ├── Nivel0Scene.js       # Nivel introductorio
-│   │   │   │   ├── Nivel3Scene.js       # Nivel con tutorial de Funcion 1
+│   │   │   │   ├── Nivel3Scene.js       # Nivel con tutorial de Funcion
 │   │   │   │   ├── CustomScene.js       # Niveles personalizados (IF, FOR, etc.)
 │   │   │   │   ├── DungeonScene.js      # Nivel dungeon
 │   │   │   │   ├── BosqueDePruebaScene.js
@@ -183,7 +183,7 @@ UI (DOM) ──window.__GYM──► engine/scenes/TileLevelScene
 3. Presionar **Ejecutar** para que el personaje ejecute los movimientos en secuencia
 4. Recolectar todos los items para completar el nivel
 5. **Reiniciar** vuelve al personaje al punto de spawn
-6. **Funcion 1 (F1)**: Podes grabar una subrutina reutilizable que luego invocas con el boton `ƒ`
+6. **Funcion (F1)**: Podes grabar una subrutina reutilizable que luego invocas con el boton `ƒ`
 7. **Repetir (FOR)**: Indica un movimiento y cuantas veces repetirlo
 8. **Si (IF)**: Define una condicion (roca adelante, arbol adelante) y una accion automatica (saltar, cortar)
 
