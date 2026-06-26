@@ -12,7 +12,7 @@ import * as Settings from '../../services/Settings.js';
  */
 export function animatePath(scene, { delay = 300, duration = 700, color = 0xffe600, alpha = 0.7, onComplete } = {}) {
   const path = scene.pathFlat;
-  if (!path?.some(v => v !== 0)) return;
+  if (!path?.some(v => v !== 0)) { onComplete?.(); return; }
 
   const cols = scene.cols, rows = scene.rows;
   const isPath = (tx, ty) => tx >= 0 && ty >= 0 && tx < cols && ty < rows && path[ty * cols + tx] !== 0;

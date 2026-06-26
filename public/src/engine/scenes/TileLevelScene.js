@@ -210,7 +210,11 @@ export class TileLevelScene extends Phaser.Scene {
     Object.assign(btn.style, { ...baseStyle, background: '#ffe600' });
     btn.addEventListener('mouseenter', () => btn.style.background = '#ffd000');
     btn.addEventListener('mouseleave', () => btn.style.background = '#ffe600');
-    btn.addEventListener('click', () => { window.__playUiSfx?.(); animatePath(this); });
+    btn.addEventListener('click', () => {
+      window.__playUiSfx?.();
+      btn.disabled = true;
+      animatePath(this, { onComplete: () => { btn.disabled = false; } });
+    });
 
     wrap.append(ayuda, btn);
     document.getElementById('result-panel')?.appendChild(wrap);
