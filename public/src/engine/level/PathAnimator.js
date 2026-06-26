@@ -10,9 +10,9 @@ import * as Settings from '../../services/Settings.js';
  * @param {number} [opts.color=0xffe600]
  * @param {number} [opts.alpha=0.7]
  */
-export function animatePath(scene, { delay = 300, duration = 700, color = 0xffe600, alpha = 0.7, onComplete } = {}) {
+export function animatePath(scene, { delay = 300, duration = 700, color = 0xffe600, alpha = 0.7, sound = true, onComplete } = {}) {
   const path = scene.pathFlat;
-  if (!path?.some(v => v !== 0)) return;
+  if (!path?.some(v => v !== 0)) { onComplete?.(); return; }
 
   const cols = scene.cols, rows = scene.rows;
   const isPath = (tx, ty) => tx >= 0 && ty >= 0 && tx < cols && ty < rows && path[ty * cols + tx] !== 0;
@@ -39,11 +39,14 @@ export function animatePath(scene, { delay = 300, duration = 700, color = 0xffe6
   ordered.forEach(({ tx, ty }, i) => {
     scene.time.delayedCall(i * delay, () => {
       const rate = 1 + (i / Math.max(ordered.length - 1, 1)) * 0.5;
-      scene.sound.play('path_bounce', { volume: 0.04 * Settings.getSfxVolume(), rate });
+      if (sound) {
+        const fade = i < 10 ? 1 : Math.max(0, 1 - (i - 10) / 10);
+        if (fade > 0) scene.sound.play('path_bounce', { volume: 0.04 * fade * Settings.getSfxVolume(), rate });
+      }
       const rect = scene.add.rectangle(
         tx * TILE + TILE / 2, ty * TILE + TILE / 2,
         TILE, TILE, color
-      ).setAlpha(alpha).setDepth(50);
+      ).setAlpha(alpha).setDepth(4000);
       scene.tweens.add({
         targets: rect, alpha: 0, duration, ease: 'Sine.easeOut',
         onComplete: () => {

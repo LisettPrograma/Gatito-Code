@@ -123,9 +123,9 @@ export const STRINGS = {
     // ── TileLevelScene ──
     'level.idle': '¡A jugar! Arma tu programa y presiona Ejecutar.',
     'level.help': 'ayuda',
-    'level.show_path': 'mostrar camino',
-    'level.hide_path': 'Ocultar camino guia',
-    'level.show_path_title': 'Mostrar camino guia',
+    'level.show_path': 'mostrar caminos',
+    'level.hide_path': 'Ocultar caminos',
+    'level.show_path_title': 'Mostrar caminos',
 
     // ── Editor ──
     'editor.title': 'Editor',
@@ -272,6 +272,22 @@ export const STRINGS = {
     'bosque_prueba.welcome': 'Sobrevive al frio bosque.',
     'bosque_floral.mission': 'Recoge las flores del bosque encantado',
     'bosque_floral.welcome': '¡Bienvenido al Bosque Floral! Usa la Funcion para recorrer el sendero.',
+    'recursion.func1': '¡Ojo! No podes poner Funcion 1 dentro de si misma, eso generaria un bucle infinito.',
+    'recursion.for': '¡Ojo! No podes poner FOR dentro de si mismo, eso generaria un bucle infinito.',
+
+    // ── Nombres de niveles ──
+    'level.name.nivel0': 'Casa',
+    'level.name.gym': 'Jardin',
+    'level.name.main': 'Huerta',
+    'level.name.nivel3': 'Funcion',
+    'level.name.bosque_floral': 'Bosque',
+    'level.name.remanso_otonal': 'Otoño',
+    'level.name.if': 'Rocas',
+    'level.name.si_2': 'Puente',
+    'level.name.jardin_tutorial': 'Pradera',
+    'level.name.for': 'Repetir',
+    'level.name.si_1': 'Sendero',
+    'level.name.si_3': 'Troncos',
   },
 
   en: {
@@ -398,9 +414,9 @@ export const STRINGS = {
     // ── TileLevelScene ──
     'level.idle': 'Let\'s play! Build your program and press Run.',
     'level.help': 'help',
-    'level.show_path': 'show path',
-    'level.hide_path': 'Hide path guide',
-    'level.show_path_title': 'Show path guide',
+    'level.show_path': 'show paths',
+    'level.hide_path': 'Hide paths',
+    'level.show_path_title': 'Show paths',
 
     // ── Editor ──
     'editor.title': 'Editor',
@@ -547,5 +563,21 @@ export const STRINGS = {
     'bosque_prueba.welcome': 'Survive the cold forest.',
     'bosque_floral.mission': 'Collect the flowers from the enchanted forest.',
     'bosque_floral.welcome': 'Welcome to the Floral Forest! Use the Function to walk the path.',
+    'recursion.func1': 'Be careful! You can\'t put Function 1 inside itself, that would create an infinite loop.',
+    'recursion.for': 'Be careful! You can\'t put FOR inside itself, that would create an infinite loop.',
+
+    // ── Level names ──
+    'level.name.nivel0': 'Home',
+    'level.name.gym': 'Garden',
+    'level.name.main': 'Orchard',
+    'level.name.nivel3': 'Function',
+    'level.name.bosque_floral': 'Forest',
+    'level.name.remanso_otonal': 'Autumn',
+    'level.name.if': 'Rocks',
+    'level.name.si_2': 'Bridge',
+    'level.name.jardin_tutorial': 'Meadow',
+    'level.name.for': 'Repeat',
+    'level.name.si_1': 'Trail',
+    'level.name.si_3': 'Logs',
   },
 };

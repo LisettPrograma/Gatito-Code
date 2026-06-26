@@ -139,7 +139,7 @@ export class TileLevelScene extends Phaser.Scene {
     this.drawGrid();
     this.gridVisible = false;
     this.grid.setVisible(false);
-    this.crosshair = this.add.rectangle(0, 0, TILE, TILE).setStrokeStyle(1, 0xffcc33, 0.8).setOrigin(0).setDepth(99).setScrollFactor(0);
+    this.crosshair = this.add.rectangle(0, 0, TILE, TILE).setStrokeStyle(1, 0xffcc33, 0.8).setOrigin(0).setDepth(8000);
 
     this.keys.G.on('down', () => { this.gridVisible = !this.gridVisible; this.grid.setVisible(this.gridVisible); });
 
@@ -166,7 +166,13 @@ export class TileLevelScene extends Phaser.Scene {
   }
 
   _runPathAnimation() {
-    animatePath(this, { onComplete: this.onPathAnimationComplete });
+    const btn = document.getElementById('repeat-path-btn');
+    if (btn) btn.disabled = true;
+    const origComplete = this.onPathAnimationComplete;
+    animatePath(this, { sound: false, onComplete: () => {
+      if (btn) btn.disabled = false;
+      origComplete?.();
+    }});
   }
 
   _addRepeatPathButton() {
@@ -206,11 +212,16 @@ export class TileLevelScene extends Phaser.Scene {
     // "mostrar camino": repite la animacion del camino (sin disparar tutoriales).
     const btn = document.createElement('button');
     btn.id = 'repeat-path-btn';
+    btn.disabled = true;
     btn.textContent = window.__t?.('level.show_path') ?? 'mostrar camino';
     Object.assign(btn.style, { ...baseStyle, background: '#ffe600' });
     btn.addEventListener('mouseenter', () => btn.style.background = '#ffd000');
     btn.addEventListener('mouseleave', () => btn.style.background = '#ffe600');
-    btn.addEventListener('click', () => { window.__playUiSfx?.(); animatePath(this); });
+    btn.addEventListener('click', () => {
+      window.__playUiSfx?.();
+      btn.disabled = true;
+      animatePath(this, { onComplete: () => { btn.disabled = false; } });
+    });
 
     wrap.append(ayuda, btn);
     document.getElementById('result-panel')?.appendChild(wrap);
@@ -242,7 +253,7 @@ export class TileLevelScene extends Phaser.Scene {
   /** Highlight walkable tiles when the level uses the `path` layer. */
   drawPathMarkers(pathFlat) {
     if (!pathFlat || !pathFlat.some(v => v !== 0)) return;
-    const g = this.add.graphics().setDepth(15);
+    const g = this.add.graphics().setDepth(4000);
     g.lineStyle(1, 0xffee88, 0.65);
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {

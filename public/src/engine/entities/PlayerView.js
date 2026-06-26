@@ -71,7 +71,7 @@ export class PlayerView {
   setPosition(tx, ty) {
     const [x, y] = this._tileCenter(tx, ty);
     this.sprite.setPosition(x, y);
-    this.sprite.setDepth(ty * COLS + tx + 2001);
+    this.sprite.setDepth(ty * COLS + tx + 8000);
   }
 
   /**
@@ -85,7 +85,7 @@ export class PlayerView {
         targets: this.sprite, x, y,
         duration: STEP_MS, ease: 'Linear',
         onComplete: () => {
-          this.sprite.setDepth(ty * COLS + tx + 2001);
+          this.sprite.setDepth(ty * COLS + tx + 8000);
           resolve();
         },
       });
